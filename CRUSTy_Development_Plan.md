@@ -11,45 +11,66 @@ The development approach leverages a hybrid architecture that combines C++ for t
 
 ## Architectural Overview
 
-CRUSTy will follow a layered architecture that separates the user interface, application logic, and cryptographic core:
+CRUSTy will follow a revised architecture that leverages Rust for all input handling while maintaining the cryptographic core in C++. This architecture supports dual functionality: a PC application with Qt UI and an embedded deployment on STM32H573I-DK hardware.
 
 ```mermaid
 graph TD
-    subgraph "CRUSTy Application"
-        subgraph "C++ Components (90%)"
-            QtGUI[Qt GUI Layer]
+    subgraph "CRUSTy Dual Functionality"
+        subgraph "Rust Components"
+            RustInput[Input Handling & Validation]
+            RustComm[Communication Layer]
+        end
+        
+        subgraph "C++ Components"
+            CppCrypto[Cryptographic Core]
             AppLogic[Application Logic]
             FileOps[File Operations]
             AuthModule[2FA Authentication]
         end
         
-        subgraph "Rust Components (10%)"
-            RustCrypto[Cryptographic Core]
+        subgraph "PC Deployment"
+            QtGUI[Qt GUI Layer]
+        end
+        
+        subgraph "Embedded Deployment"
+            EmbeddedHW[STM32H573I-DK Hardware]
+            HWAccel[Hardware Acceleration]
         end
         
         FFI[C++/Rust FFI Layer]
         
-        QtGUI --> AppLogic
+        QtGUI --> RustInput
+        RustInput --> FFI
+        RustComm --> FFI
+        FFI <--> CppCrypto
+        CppCrypto --> AppLogic
         AppLogic --> FileOps
         AppLogic --> AuthModule
-        AppLogic --> FFI
-        FFI <--> RustCrypto
+        
+        EmbeddedHW --> RustComm
+        CppCrypto --> HWAccel
     end
 ```
 
 ### Key Components
 
-1. **Qt GUI Layer**: A modern, cross-platform user interface built with Qt 6, providing intuitive file selection, encryption/decryption workflows, and 2FA input.
+1. **Rust Input Handling**: All user inputs, network commands, and device communications are processed in Rust to leverage its memory safety and security features.
 
-2. **Application Logic**: Core business logic implemented in C++, managing the overall application flow, state, and coordinating between UI and cryptographic operations.
+2. **C++ Cryptographic Core**: Core encryption and decryption operations implemented in C++, with optimizations for both PC and embedded platforms.
 
-3. **File Operations**: Handles file reading, writing, and metadata management, implemented in C++ for compatibility with enterprise systems.
+3. **Qt GUI Layer**: A modern, cross-platform user interface built with Qt 6, providing intuitive file selection, encryption/decryption workflows, and 2FA input.
 
-4. **2FA Authentication**: Implements Time-based One-Time Password (TOTP) verification as a second authentication factor for enhanced security.
+4. **Application Logic**: Core business logic implemented in C++, managing the overall application flow, state, and coordinating between UI and cryptographic operations.
 
-5. **Cryptographic Core**: Security-critical encryption and decryption operations implemented in Rust, leveraging its memory safety guarantees for maximum security.
+5. **File Operations**: Handles file reading, writing, and metadata management, implemented in C++ for compatibility with enterprise systems.
 
-6. **FFI Layer**: A carefully designed Foreign Function Interface that enables secure and efficient communication between C++ and Rust components.
+6. **2FA Authentication**: Implements Time-based One-Time Password (TOTP) verification as a second authentication factor for enhanced security.
+
+7. **Communication Layer**: Rust-based communication protocols for interaction between PC and embedded systems.
+
+8. **Hardware Acceleration**: Leverages STM32H5 cryptographic hardware accelerators for improved performance on embedded deployments.
+
+9. **FFI Layer**: A carefully designed Foreign Function Interface that enables secure and efficient communication between C++ and Rust components.
 
 ## Development Phases
 
@@ -58,36 +79,55 @@ graph TD
 **Objectives:**
 - Fork the CRUSTy repository and establish the new project structure
 - Define the interface between C++ and Rust components
-- Extract and adapt the core encryption functionality from CRUSTy
+- Set up the dual-target build system for PC and embedded deployments
 - Set up the basic Qt application framework
 
 **Key Deliverables:**
 - Project repository with initial structure and build system
 - Interface definitions for cross-language communication
-- Core cryptographic functions adapted for the new architecture
+- Build configuration for both PC and STM32H5 targets
 - Basic Qt application shell with placeholder UI
 
 **Technical Approach:**
-The FFI boundary will be carefully designed to ensure type safety and memory safety across language boundaries. The interface will include functions for data encryption/decryption, password hashing, and key derivation. A C++ wrapper class will provide a clean, object-oriented interface to the Rust cryptographic functions.
+The FFI boundary will be carefully designed to ensure type safety and memory safety across language boundaries. The interface will include functions for data encryption/decryption, password hashing, and key derivation. A C++ wrapper class will provide a clean, object-oriented interface to the Rust input handling functions. The build system will support conditional compilation for both PC and embedded targets.
 
 ### Phase 2: Core Functionality Implementation
 
 **Objectives:**
-- Implement the Rust cryptographic functions for encryption and decryption
+- Implement the Rust input handling and validation layer
+- Implement the C++ cryptographic core
 - Create C++ wrappers and file operation handlers
 - Develop the basic Qt user interface
 - Implement progress tracking and error handling
 
 **Key Deliverables:**
 - Functional encryption and decryption operations
+- Rust input validation for all user inputs
 - File handling with proper error management
 - Basic user interface for file selection and operation control
 - Progress reporting and user feedback mechanisms
 
 **Technical Approach:**
-The cryptographic implementation will port the AES-256-GCM encryption from CRUSTy, adding password-based key derivation using Argon2 for enhanced security. The C++ layer will handle file operations and provide a clean interface to the Qt UI components. The user interface will include file selection dialogs and basic progress reporting.
+The C++ cryptographic implementation will use AES-256-GCM encryption, with password-based key derivation using Argon2 for enhanced security. The Rust layer will handle all input validation and processing before passing data to the C++ core. The C++ layer will handle file operations and provide a clean interface to the Qt UI components. The user interface will include file selection dialogs and basic progress reporting.
 
-### Phase 3: 2FA and Enhanced Security
+### Phase 3: Dual-Target Implementation
+
+**Objectives:**
+- Implement the embedded target functionality for STM32H573I-DK
+- Develop the communication protocol between PC and embedded device
+- Implement hardware acceleration for cryptographic operations
+- Add "Install CRUSTy-Core on Embedded System" feature to PC application
+
+**Key Deliverables:**
+- Functional embedded firmware for STM32H573I-DK
+- Secure communication protocol between PC and embedded device
+- Hardware-accelerated encryption on embedded device
+- PC application feature for installing and configuring embedded firmware
+
+**Technical Approach:**
+The embedded implementation will leverage the STM32H5 cryptographic hardware accelerators for improved performance. The communication protocol will be implemented in Rust with a focus on security and reliability. The PC application will include features for detecting, installing, and configuring the embedded firmware.
+
+### Phase 4: 2FA and Enhanced Security
 
 **Objectives:**
 - Implement two-factor authentication for decryption
@@ -104,22 +144,22 @@ The cryptographic implementation will port the AES-256-GCM encryption from CRUST
 **Technical Approach:**
 The 2FA implementation will use industry-standard TOTP algorithms, compatible with authenticator apps like Google Authenticator or Authy. The UI will provide a clean interface for entering both the password and the second factor. Security enhancements will include secure memory handling and comprehensive input validation.
 
-### Phase 4: Polish and Optimization
+### Phase 5: Polish and Optimization
 
 **Objectives:**
 - Improve the user interface with theming and usability enhancements
-- Optimize performance for large files
-- Conduct comprehensive testing
+- Optimize performance for large files on both PC and embedded targets
+- Conduct comprehensive testing on both platforms
 - Create user and developer documentation
 
 **Key Deliverables:**
 - Polished user interface with theming support
 - Optimized file handling for large files
-- Comprehensive test suite
+- Comprehensive test suite for both PC and embedded targets
 - Complete user and developer documentation
 
 **Technical Approach:**
-Performance optimization will include file chunking for large files and parallel processing where appropriate. The UI will be enhanced with theming support and improved layouts. A comprehensive testing strategy will ensure both the C++ and Rust components function correctly and securely.
+Performance optimization will include file chunking for large files and parallel processing where appropriate. The UI will be enhanced with theming support and improved layouts. A comprehensive testing strategy will ensure both the C++ and Rust components function correctly and securely across both deployment targets.
 
 ## Technical Highlights
 
@@ -132,6 +172,35 @@ The integration between C++ and Rust will be handled through a carefully designe
 - Handle memory management safely between languages
 - Provide error propagation mechanisms
 - Support complex data structures through serialization
+- Maintain consistent behavior across PC and embedded targets
+
+### Dual-Target Architecture
+
+The dual-target architecture supports both PC and embedded deployments:
+
+1. **PC Deployment**:
+   - Full Qt GUI for user interaction
+   - Local file encryption/decryption
+   - Option to offload encryption to connected embedded device
+   - Ability to install and configure embedded firmware
+
+2. **Embedded Deployment (STM32H573I-DK)**:
+   - Runs on STM32H573I-DK hardware
+   - Provides encryption services to connected host
+   - Leverages hardware acceleration for cryptographic operations
+   - Communicates via secure protocol with host
+
+### Rust Input Handling
+
+All user inputs and external communications are handled in Rust to leverage its memory safety features:
+
+- User input from GUI components
+- Network commands and data
+- Device communications
+- File data validation
+- Command parsing and validation
+
+This approach significantly enhances security by ensuring that all untrusted input is processed through Rust's memory-safe environment before reaching the C++ core.
 
 ### Two-Factor Authentication
 
@@ -284,60 +353,76 @@ graph TD
 
 ### Phase 1 Prompts
 
-1. "Help me set up the initial project structure for CRUSTy, including the CMake build system and basic directory layout."
-   - This will establish the foundation for our hybrid C++/Rust project, setting up the necessary build system and directory structure.
+1. "Help me set up the initial project structure for CRUSTy, including the CMake build system with dual-target support."
+   - This will establish the foundation for our hybrid C++/Rust project with support for both PC and embedded targets.
 
-2. "I need to define the FFI boundary between C++ and Rust. Can you help me create the header files and Rust exports for the core encryption functions?"
+2. "I need to define the FFI boundary between C++ and Rust. Can you help me create the header files and Rust exports for input handling functions?"
    - This will create the critical interface between C++ and Rust, defining how the languages will communicate.
 
-3. "Let's extract the core encryption functionality from CRUSTy's Rust code and adapt it for our FFI interface."
-   - This will port the existing encryption code to work with our new architecture, maintaining security while enabling language interoperability.
+3. "Let's set up the conditional compilation for PC and embedded targets in both CMake and Rust code."
+   - This will enable building for different targets from the same codebase.
 
 4. "Help me create the basic Qt GUI structure with a main window and file selection dialogs."
    - This will establish the foundation of our user interface, creating the main application window and basic dialogs.
 
 ### Phase 2 Prompts
 
-5. "I need to implement the Rust cryptographic functions for encryption and decryption with password-based key derivation."
-   - This will create the core security functionality, implementing AES-256-GCM encryption with secure password handling.
+5. "I need to implement the Rust input handling and validation layer for all user inputs."
+   - This will create the secure input processing layer that validates all data before passing it to the C++ core.
 
-6. "Let's create the C++ wrapper class for the Rust encryption functions and implement file operations."
-   - This will build the C++ layer that interfaces with the Rust cryptographic core, handling file operations and providing a clean API.
+6. "Let's implement the C++ cryptographic core with AES-256-GCM encryption and Argon2 key derivation."
+   - This will build the core encryption functionality in C++.
 
-7. "Help me implement the Qt GUI for file encryption and decryption, including progress reporting."
-   - This will develop the user interface components for encryption and decryption operations, with progress feedback.
+7. "Help me create the C++ wrapper class for file operations and implement the FFI interface to Rust."
+   - This will build the C++ layer that interfaces with the Rust input handling, providing file operations and a clean API.
 
-8. "I need to add error handling and user feedback for encryption/decryption operations."
-   - This will enhance the application with proper error handling and user notifications.
+8. "I need to implement the Qt GUI for file encryption and decryption, with all user input routed through Rust."
+   - This will develop the user interface components that send all user input to the Rust validation layer.
 
 ### Phase 3 Prompts
 
-9. "Let's implement 2FA for file decryption using TOTP (Time-based One-Time Password)."
-   - This will add an additional security layer requiring a second factor for decryption.
+9. "I need to implement the embedded firmware for STM32H573I-DK with hardware-accelerated encryption."
+   - This will create the embedded target implementation leveraging the STM32H5 hardware.
 
-10. "Help me create the Qt UI components for 2FA input and verification."
-    - This will build the user interface elements for entering and verifying the second authentication factor.
+10. "Let's develop the communication protocol between PC and embedded device in Rust."
+    - This will build the secure communication layer for PC-to-embedded interaction.
 
-11. "I need to enhance the security features with secure password storage and memory handling."
-    - This will improve security by implementing proper password storage and secure memory management.
+11. "Help me implement the 'Install CRUSTy-Core on Embedded System' feature in the PC application."
+    - This will create the functionality to deploy and configure the embedded firmware.
 
-12. "Let's improve error handling and validation for user inputs."
-    - This will enhance the application's robustness by validating user inputs and providing clear error messages.
+12. "I need to implement hardware acceleration for cryptographic operations on the STM32H5."
+    - This will optimize performance by leveraging the dedicated cryptographic hardware.
 
 ### Phase 4 Prompts
 
-13. "Help me optimize the performance of file encryption/decryption, especially for large files."
+13. "Let's implement 2FA for file decryption using TOTP (Time-based One-Time Password)."
+    - This will add an additional security layer requiring a second factor for decryption.
+
+14. "Help me create the Qt UI components for 2FA input and verification, with Rust validation."
+    - This will build the user interface elements for entering and verifying the second authentication factor.
+
+15. "I need to enhance the security features with secure password storage and memory handling."
+    - This will improve security by implementing proper password storage and secure memory management.
+
+16. "Let's improve error handling and validation for user inputs in the Rust layer."
+    - This will enhance the application's robustness by validating user inputs and providing clear error messages.
+
+### Phase 5 Prompts
+
+17. "Help me optimize the performance of file encryption/decryption on both PC and embedded targets."
     - This will improve the application's performance when handling large files through chunking and parallel processing.
 
-14. "Let's improve the UI with theming support and better layout."
+18. "Let's improve the UI with theming support and better layout."
     - This will enhance the visual appeal and usability of the application with theming and improved layouts.
 
-15. "I need to add comprehensive tests for both the C++ and Rust components."
-    - This will ensure the application's reliability through thorough testing of all components.
+19. "I need to add comprehensive tests for both PC and embedded targets."
+    - This will ensure the application's reliability through thorough testing of all components on both platforms.
 
-16. "Help me create user documentation for CRUSTy."
-    - This will provide end-users with clear instructions on how to use the application effectively.
+20. "Help me create user documentation for CRUSTy, including both PC and embedded functionality."
+    - This will provide end-users with clear instructions on how to use all features of the application.
 
 ## Conclusion
 
-The CRUSTy project represents a strategic evolution of our file encryption capabilities, combining the security benefits of Rust with the enterprise compatibility of C++ and the modern UI capabilities of Qt. By leveraging the strengths of both languages through a carefully designed FFI layer and integrated build system, we can create a secure, user-friendly application that meets our enterprise requirements while maintaining the highest security standards for sensitive data protection.
+The CRUSTy project represents a strategic evolution of our file encryption capabilities, combining the security benefits of Rust for input handling with the enterprise compatibility of C++ for cryptographic operations. The dual-target architecture supports both PC and embedded deployments, providing flexibility and enhanced security options.
+
+By leveraging Rust's memory safety for all input processing and C++'s performance for cryptographic operations, we create a secure, user-friendly application that meets our enterprise requirements while maintaining the highest security standards. The ability to offload encryption to a dedicated STM32H5 device provides additional security benefits for sensitive operations, while the local encryption option ensures convenience for everyday use.
