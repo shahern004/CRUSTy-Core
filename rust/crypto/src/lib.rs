@@ -16,10 +16,11 @@ use argon2::{
 };
 use rand::RngCore;
 use std::slice;
-use std::ptr;
+// use std::ptr; // Unused import
 
 /// Error codes for cryptographic operations
 #[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum CryptoErrorCode {
     /// Operation completed successfully
     Success = 0,
@@ -77,10 +78,7 @@ pub unsafe extern "C" fn encrypt_data(
     let nonce = Nonce::from_slice(&nonce_bytes);
     
     // Create the cipher
-    let cipher = match Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key)) {
-        Ok(c) => c,
-        Err(_) => return CryptoErrorCode::EncryptionError as i32,
-    };
+    let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key));
     
     // Encrypt the data
     let ciphertext = match cipher.encrypt(nonce, data) {
@@ -166,10 +164,7 @@ pub unsafe extern "C" fn decrypt_data(
     };
     
     // Create the cipher
-    let cipher = match Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key)) {
-        Ok(c) => c,
-        Err(_) => return CryptoErrorCode::DecryptionError as i32,
-    };
+    let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key));
     
     // Decrypt the data
     let plaintext = match cipher.decrypt(nonce, ciphertext) {

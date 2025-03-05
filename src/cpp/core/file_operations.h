@@ -275,6 +275,55 @@ public:
         bool overwrite = false
     );
     
+    /**
+     * @brief Create a directory and any needed parent directories
+     * 
+     * @param path Directory path
+     * @throws FileOperationException if creation fails
+     */
+    void createDirectory(const std::string& path);
+    
+    /**
+     * @brief Check if a file exists
+     * 
+     * @param path File path
+     * @return True if file exists and is accessible
+     */
+    bool fileExists(const std::string& path);
+    
+    /**
+     * @brief Get file size in bytes
+     * 
+     * @param path File path
+     * @return File size
+     * @throws FileOperationException if file doesn't exist or can't be accessed
+     */
+    std::uintmax_t getFileSize(const std::string& path);
+    
+    /**
+     * @brief Get the file name without directory path
+     * 
+     * @param path Full file path
+     * @return File name component
+     */
+    std::string getFileName(const std::string& path);
+    
+    /**
+     * @brief Get the file extension (without the dot)
+     * 
+     * @param path File path
+     * @return File extension or empty string if none
+     */
+    std::string getFileExtension(const std::string& path);
+    
+    /**
+     * @brief Get the directory path from a file path
+     * 
+     * @param path File path
+     * @return Directory path
+     */
+    std::string getDirectoryPath(const std::string& path);
+    
 private:
     std::unique_ptr<FileSystem> file_system_;
     std::unique_ptr<FileDialogInterface> file_dialog_;

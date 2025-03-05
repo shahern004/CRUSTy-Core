@@ -1,13 +1,27 @@
 #pragma once
 
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QProgressBar>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QTimer>
+#include <QMainWindow>
+#include <QLabel>
+#include <QPushButton>
+#include <QProgressBar>
+#include <QLineEdit>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QToolBar>
+#include <QAction>
+#include <QTreeView>
+#include <QListView>
+#include <QTabWidget>
+#include <QSplitter>
+#include <QStackedWidget>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QTableView>
+#include <QTimer>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+#include <QStandardItemModel>
 
 #include "../core/encryptor.h"
 #include "../core/file_operations.h"
@@ -16,6 +30,9 @@ namespace crusty {
 
 // Forward declarations
 class FilePathSelector;
+class FileListModel;
+class PasswordStrengthMeter;
+class DeviceManager;
 
 /**
  * @brief Main application window
@@ -48,6 +65,55 @@ private slots:
     void decryptFile();
     
     /**
+     * @brief Process multiple files in batch mode
+     */
+    void processBatch();
+    
+    /**
+     * @brief Open a file or directory
+     */
+    void openFile();
+    
+    /**
+     * @brief Refresh the file list
+     */
+    void refreshFileList();
+    
+    /**
+     * @brief Handle file selection in the file list
+     * 
+     * @param index The selected index
+     */
+    void onFileSelected(const QModelIndex& index);
+    
+    /**
+     * @brief Show the settings dialog
+     */
+    void showSettings();
+    
+    /**
+     * @brief Show the key management dialog
+     */
+    void showKeyManagement();
+    
+    /**
+     * @brief Show the device management panel
+     */
+    void showDeviceManagement();
+    
+    /**
+     * @brief Toggle 2FA for encryption/decryption
+     * 
+     * @param enabled Whether 2FA is enabled
+     */
+    void toggle2FA(bool enabled);
+    
+    /**
+     * @brief Configure 2FA settings
+     */
+    void configure2FA();
+    
+    /**
      * @brief Show about dialog
      */
     void showAbout();
@@ -59,14 +125,30 @@ private:
     void setupUi();
     
     /**
+     * @brief Apply the application style sheet
+     */
+    void applyStyleSheet();
+    
+    /**
      * @brief Create menus and actions
      */
     void setupMenus();
     
     /**
+     * @brief Create the toolbar
+     */
+    void setupToolBar();
+    
+    /**
      * @brief Update UI elements enabled state based on current input values
      */
     void updateUiState();
+    
+    /**
+     * @brief Create the file browser panel
+     * @return The file browser widget
+     */
+    QWidget* createFileBrowserPanel();
     
     /**
      * @brief Create the encryption tab
@@ -79,6 +161,18 @@ private:
      * @return The decryption tab widget
      */
     QWidget* createDecryptTab();
+    
+    /**
+     * @brief Create the batch processing tab
+     * @return The batch processing tab widget
+     */
+    QWidget* createBatchTab();
+    
+    /**
+     * @brief Create the device management tab
+     * @return The device management tab widget
+     */
+    QWidget* createDeviceTab();
     
     /**
      * @brief Set up file selection dialogs with their callbacks
@@ -125,14 +219,35 @@ private:
      */
     bool confirmFileOverwrite(const QString& filePath);
     
-    // UI elements
+    // UI elements - Main layout
+    QSplitter* m_mainSplitter;
+    QTreeView* m_fileTreeView;
+    QTabWidget* m_operationTabWidget;
+    QStandardItemModel* m_fileModel;
+    QSortFilterProxyModel* m_fileSortModel;
+    
+    // UI elements - Toolbar
+    QToolBar* m_toolBar;
+    QAction* m_openAction;
+    QAction* m_encryptAction;
+    QAction* m_decryptAction;
+    QAction* m_batchAction;
+    QAction* m_deviceAction;
+    QAction* m_keyAction;
+    QAction* m_settingsAction;
+    
+    // UI elements - Encrypt tab
     struct {
         QLineEdit* fileEdit;
         QLineEdit* outputEdit;
         QLineEdit* passwordEdit;
+        QCheckBox* twoFactorCheckBox;
+        QPushButton* twoFactorConfigButton;
+        PasswordStrengthMeter* strengthMeter;
         QPushButton* button;
     } m_encrypt;
     
+    // UI elements - Decrypt tab
     struct {
         QLineEdit* fileEdit;
         QLineEdit* outputEdit;
@@ -141,12 +256,67 @@ private:
         QPushButton* button;
     } m_decrypt;
     
+    // UI elements - Batch tab
+    struct {
+        QTableView* fileTable;
+        QStandardItemModel* fileModel;
+        QPushButton* addButton;
+        QPushButton* removeButton;
+        QComboBox* operationCombo;
+        QLineEdit* passwordEdit;
+        QLineEdit* secondFactorEdit;
+        QPushButton* button;
+    } m_batch;
+    
+    // UI elements - Device tab
+    struct {
+        QTableView* deviceTable;
+        QStandardItemModel* deviceModel;
+        QPushButton* refreshButton;
+        QPushButton* connectButton;
+        QPushButton* installButton;
+        QLabel* statusLabel;
+    } m_device;
+    
+    // Status and progress
     QProgressBar* m_progressBar;
     QLabel* m_statusLabel;
     QTimer m_statusTimer;
     
     // Core components
     Encryptor m_encryptor;
+};
+
+/**
+ * @brief Password strength meter widget
+ */
+class PasswordStrengthMeter : public QProgressBar {
+    Q_OBJECT
+    
+public:
+    /**
+     * @brief Constructor
+     * 
+     * @param parent Parent widget
+     */
+    explicit PasswordStrengthMeter(QWidget* parent = nullptr);
+    
+public slots:
+    /**
+     * @brief Update the strength meter based on password
+     * 
+     * @param password The password to evaluate
+     */
+    void updateStrength(const QString& password);
+    
+private:
+    /**
+     * @brief Calculate password strength
+     * 
+     * @param password The password to evaluate
+     * @return int Strength score (0-100)
+     */
+    int calculateStrength(const QString& password);
 };
 
 } // namespace crusty

@@ -38,11 +38,11 @@ QString toQString(const std::string& str) {
 std::string FileOperations::selectFile(
     const std::string& title,
     const std::string& filter,
-    bool isOpen
-) {
+    bool forSaving
+) const {
     QString selectedFile;
     
-    if (isOpen) {
+    if (!forSaving) {
         selectedFile = QFileDialog::getOpenFileName(
             nullptr,
             toQString(title),
@@ -74,10 +74,10 @@ std::string FileOperations::selectFile(
     return result;
 }
 
-std::vector<std::string> FileOperations::selectFiles(
+std::vector<std::string> FileOperations::selectMultipleFiles(
     const std::string& title,
     const std::string& filter
-) {
+) const {
     QStringList selectedFiles = QFileDialog::getOpenFileNames(
         nullptr,
         toQString(title),
@@ -106,7 +106,7 @@ std::vector<std::string> FileOperations::selectFiles(
     return sanitizedPaths;
 }
 
-std::string FileOperations::selectDirectory(const std::string& title) {
+std::string FileOperations::selectDirectory(const std::string& title) const {
     QString selectedDir = QFileDialog::getExistingDirectory(
         nullptr,
         toQString(title),
@@ -130,10 +130,16 @@ std::string FileOperations::selectDirectory(const std::string& title) {
     return result;
 }
 
-std::string FileOperations::getDefaultOutputPath(
+std::string FileOperations::prepareOutputFile(
     const std::string& sourcePath,
-    bool isEncrypting
+    const std::string& outputPath,
+    bool isEncrypting,
+    bool overwrite
 ) {
+    std::string result;
+    
+    if (outputPath.empty()) {
+        // Generate default output path
     try {
         // Sanitize the input path
         std::string sanitizedPath = PathUtils::sanitizePath(sourcePath);
@@ -153,7 +159,7 @@ std::string FileOperations::getDefaultOutputPath(
         std::string filename = path.filename().string();
         
         if (filename.length() > std::string(ENCRYPTED_EXTENSION).length() &&
-            filename.ends_with(ENCRYPTED_EXTENSION)) {
+            filename.substr(filename.length() - std::string(ENCRYPTED_EXTENSION).length()) == ENCRYPTED_EXTENSION) {
             // Remove .encrypted extension
             size_t extensionPos = filename.length() - std::string(ENCRYPTED_EXTENSION).length();
             outputPath = path.parent_path() / filename.substr(0, extensionPos);
@@ -171,6 +177,10 @@ std::string FileOperations::getDefaultOutputPath(
         // Fallback to a safe default in case of error
         return sourcePath + (isEncrypting ? ".encrypted" : ".decrypted");
     }
+    }
+    
+    // If outputPath is provided, use it
+    return outputPath;
 }
 
 void FileOperations::createDirectory(const std::string& path) {

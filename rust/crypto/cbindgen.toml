@@ -72,3 +72,7 @@ derive_partialeq = true
 # Whether to derive Ord trait for enums
 derive_ord = false
 derive_eq = false
+
+# Explicitly export the CryptoErrorCode enum
+[export]
+include = ["CryptoErrorCode"]

@@ -2,8 +2,8 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    // Tell Cargo to re-run this if the wrapper.h file changes
-    println!("cargo:rerun-if-changed=wrapper.h");
+    // No wrapper.h file is needed for this project
+    // println!("cargo:rerun-if-changed=wrapper.h");
     
     // Generate C bindings
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
@@ -11,7 +11,7 @@ fn main() {
         .unwrap_or_else(|_| {
             // Default configuration if cbindgen.toml doesn't exist
             let mut config = cbindgen::Config::default();
-            config.language = cbindgen::Language::C;
+            config.language = cbindgen::Language::Cxx;
             config.cpp_compat = true;
             config.pragma_once = true;
             config.documentation = true;
@@ -39,5 +39,6 @@ fn main() {
         .expect("Unable to generate bindings")
         .write_to_file(out_dir.join("crypto_interface.h"));
     
-    println!("cargo:rustc-link-lib=static=rust_crypto");
+    // We don't need to link against ourselves
+    // println!("cargo:rustc-link-lib=static=rust_crypto");
 }

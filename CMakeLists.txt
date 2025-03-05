@@ -8,10 +8,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add security-focused compiler flags
 if(MSVC)
-    add_compile_options(/GS /DYNAMICBASE /NXCOMPAT /CETCOMPAT)
+    add_compile_options(/GS /DYNAMICBASE /NXCOMPAT /CETCOMPAT /Zc:__cplusplus /permissive-)
     # Control Flow Guard for MSVC
     add_compile_options(/guard:cf)
+elseif(MINGW)
+    # MinGW-specific options (without the unsupported -z flag)
+    add_compile_options(-fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE)
+    add_link_options(-pie)
 else()
+    # Linux/Unix options
     add_compile_options(-fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE)
     add_link_options(-Wl,-z,relro,-z,now -pie)
 endif()
@@ -34,6 +39,16 @@ FetchContent_MakeAvailable(corrosion)
 # Add Rust crypto library
 corrosion_import_crate(MANIFEST_PATH rust/crypto/Cargo.toml)
 
+# Link Windows libraries for Rust crypto
+if(MINGW)
+    target_link_libraries(rust_crypto INTERFACE 
+        ws2_32 
+        bcrypt 
+        ntdll 
+        userenv
+    )
+endif()
+
 # C++ components
 add_library(cpp_components
     src/cpp/core/encryptor.cpp
@@ -45,6 +60,11 @@ add_library(cpp_components
 target_include_directories(cpp_components PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp
 )
+target_link_libraries(cpp_components PUBLIC 
+    Qt6::Core 
+    Qt6::Gui 
+    Qt6::Widgets
+)
 
 # Qt UI components
 set(CMAKE_AUTOMOC ON)
@@ -53,12 +73,14 @@ set(CMAKE_AUTOUIC ON)
 
 add_library(qt_ui
     src/cpp/ui/main_window.cpp
+    src/cpp/ui/main_window_impl.cpp
+    src/cpp/resources.qrc
 )
 target_link_libraries(qt_ui PRIVATE 
     Qt6::Core 
     Qt6::Gui 
     Qt6::Widgets
-    cpp_components
+    cpp_components  # Add link to cpp_components library
 )
 target_include_directories(qt_ui PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp
