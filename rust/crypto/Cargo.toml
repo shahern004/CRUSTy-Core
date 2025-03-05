@@ -1,0 +1,19 @@
+[package]
+name = "rust_crypto"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "rust_crypto"
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+aes-gcm = "0.10.1"
+argon2 = "0.5.0"
+rand = "0.8.5"
+base64 = "0.21.0"
+thiserror = "1.0.40"
+anyhow = "1.0.70"
+
+[build-dependencies]
+cbindgen = "0.24.3"

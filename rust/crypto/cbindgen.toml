@@ -1,0 +1,74 @@
+# This is a configuration file for cbindgen, which generates C/C++ headers from Rust code
+
+# The language to output bindings in
+language = "C++"
+
+# Whether to add a pragma once guard
+pragma_once = true
+
+# Whether to add documentation from rustdoc comments
+documentation = true
+
+# The style to use for curly braces
+braces = "SameLine"
+
+# The desired style of indentation
+tab_width = 4
+style = "both"
+
+# Whether to generate C++ compatibility code
+cpp_compat = true
+
+# A list of namespaces to output the bindings into
+namespaces = ["crusty", "crypto"]
+
+# How to name enums
+enum_class = true
+
+# How to name constants
+const_style = "CamelCase"
+
+# How to name types
+type_style = "CamelCase"
+
+# How to name functions
+function_style = "camelCase"
+
+# How to name variables
+variable_style = "camelCase"
+
+# Whether to generate a macro for marking exported functions
+export_macro = "CRUSTY_EXPORT"
+
+# Whether to include a comment with the version of cbindgen used to generate the file
+autogen_warning = true
+
+# Whether to include a comment with the revision of the input headers
+include_version = true
+
+# Whether to include standard includes like <stdint.h>, <stdbool.h>, etc.
+includes = ["<stdint.h>", "<stdbool.h>"]
+
+# Whether to use includes or forward declarations
+no_includes = false
+
+# Whether to derive Copy and Clone traits for enums
+derive_copy = true
+derive_clone = true
+
+# Whether to derive Debug trait for enums
+derive_debug = true
+
+# Whether to derive Default trait for enums
+derive_default = false
+
+# Whether to derive Hash trait for enums
+derive_hash = false
+
+# Whether to derive PartialEq trait for enums
+derive_partialord = false
+derive_partialeq = true
+
+# Whether to derive Ord trait for enums
+derive_ord = false
+derive_eq = false
