@@ -44,6 +44,33 @@ For detailed installation and usage instructions, please see the [Usage Guide](D
 - The application has not been formally audited for security vulnerabilities
 - For highly sensitive data, consider using established encryption tools
 
+## NSA Secure Coding Practices
+
+CRUSTy-Core implements secure coding practices aligned with the NSA Cybersecurity Information Sheet on Software Memory Safety:
+
+- **Memory Safety Implementation**
+  - Use of Rust for security-critical cryptographic operations
+  - SecureData template with automatic memory wiping in C++
+  - Smart pointers and RAII patterns for resource management
+
+- **Input Validation**
+  - Path sanitization to prevent directory traversal attacks
+  - Comprehensive validation at trust boundaries
+
+- **Error Handling**
+  - Comprehensive exception handling with secure failure states
+  - Secure default states on failure
+
+- **Compiler Hardening**
+  - Stack protection mechanisms to prevent buffer overflow attacks
+  - Address Space Layout Randomization (ASLR) for increased memory access security
+  - Data Execution Prevention (DEP) to prevent code execution from data pages
+  - Control Flow Guard to prevent hijacking of program control flow
+  - Position Independent Executable (PIE) support for enhanced security
+
+- **Secure Logging**
+  - Thread-safe audit logging system for security events
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
