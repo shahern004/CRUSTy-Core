@@ -9,8 +9,6 @@ CRUSTy is a robust, secure file encryption application that implements AES-256-G
 
 It provides a comprehensive solution for protecting sensitive data through strong cryptographic primitives while maintaining a user-friendly interface.
 
-![CRUSTy Application](https://github.com/shahern004/CRUSTy/raw/main/screenshots/crusty_main.png)
-
 ## Quick Start
 
 For detailed installation and usage instructions, please see the [Usage Guide](Documentation/USAGE.md).
