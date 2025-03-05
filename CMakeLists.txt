@@ -6,6 +6,16 @@ project(CRUSTy VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Add security-focused compiler flags
+if(MSVC)
+    add_compile_options(/GS /DYNAMICBASE /NXCOMPAT /CETCOMPAT)
+    # Control Flow Guard for MSVC
+    add_compile_options(/guard:cf)
+else()
+    add_compile_options(-fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE)
+    add_link_options(-Wl,-z,relro,-z,now -pie)
+endif()
+
 # Include custom CMake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -28,6 +38,9 @@ corrosion_import_crate(MANIFEST_PATH rust/crypto/Cargo.toml)
 add_library(cpp_components
     src/cpp/core/encryptor.cpp
     src/cpp/core/file_operations.cpp
+    src/cpp/core/audit_log.h
+    src/cpp/core/path_utils.h
+    src/cpp/core/secure_utils.h
 )
 target_include_directories(cpp_components PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp

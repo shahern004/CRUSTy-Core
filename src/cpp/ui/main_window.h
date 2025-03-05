@@ -14,6 +14,9 @@
 
 namespace crusty {
 
+// Forward declarations
+class FilePathSelector;
+
 /**
  * @brief Main application window
  */
@@ -34,26 +37,6 @@ public:
     ~MainWindow() override = default;
     
 private slots:
-    /**
-     * @brief Select a file for encryption
-     */
-    void selectEncryptFile();
-    
-    /**
-     * @brief Select a file for decryption
-     */
-    void selectDecryptFile();
-    
-    /**
-     * @brief Select output directory for encryption
-     */
-    void selectEncryptOutput();
-    
-    /**
-     * @brief Select output directory for decryption
-     */
-    void selectDecryptOutput();
-    
     /**
      * @brief Encrypt the selected file
      */
@@ -76,19 +59,31 @@ private:
     void setupUi();
     
     /**
-     * @brief Create actions
+     * @brief Create menus and actions
      */
-    void createActions();
+    void setupMenus();
     
     /**
-     * @brief Create menus
-     */
-    void createMenus();
-    
-    /**
-     * @brief Update the UI state
+     * @brief Update UI elements enabled state based on current input values
      */
     void updateUiState();
+    
+    /**
+     * @brief Create the encryption tab
+     * @return The encryption tab widget
+     */
+    QWidget* createEncryptTab();
+    
+    /**
+     * @brief Create the decryption tab
+     * @return The decryption tab widget
+     */
+    QWidget* createDecryptTab();
+    
+    /**
+     * @brief Set up file selection dialogs with their callbacks
+     */
+    void setupFileSelectors();
     
     /**
      * @brief Show a status message
@@ -98,44 +93,60 @@ private:
      */
     void showStatusMessage(const QString& message, bool isError = false);
     
+    /**
+     * @brief Process a cryptographic operation in a background thread
+     * 
+     * @param operation The operation to perform (encrypt/decrypt)
+     * @param sourcePath Source file path
+     * @param destPath Destination file path
+     * @param password Password for encryption/decryption
+     * @param secondFactor Optional second factor for decryption
+     */
+    void processCryptoOperation(
+        const std::function<void(
+            const std::string&, 
+            const std::string&, 
+            const std::string&, 
+            const std::string&, 
+            const std::function<void(float)>&
+        )>& operation,
+        const QString& sourcePath,
+        const QString& destPath,
+        const QString& password,
+        const QString& secondFactor = "",
+        const QString& successMessage = "Operation completed successfully"
+    );
+    
+    /**
+     * @brief Check if the file exists and confirm overwrite if needed
+     * 
+     * @param filePath Path to check
+     * @return true if operation can proceed, false otherwise
+     */
+    bool confirmFileOverwrite(const QString& filePath);
+    
     // UI elements
-    QLabel *m_encryptFileLabel;
-    QLineEdit *m_encryptFileEdit;
-    QPushButton *m_encryptFileBrowseButton;
+    struct {
+        QLineEdit* fileEdit;
+        QLineEdit* outputEdit;
+        QLineEdit* passwordEdit;
+        QPushButton* button;
+    } m_encrypt;
     
-    QLabel *m_encryptOutputLabel;
-    QLineEdit *m_encryptOutputEdit;
-    QPushButton *m_encryptOutputBrowseButton;
+    struct {
+        QLineEdit* fileEdit;
+        QLineEdit* outputEdit;
+        QLineEdit* passwordEdit;
+        QLineEdit* secondFactorEdit;
+        QPushButton* button;
+    } m_decrypt;
     
-    QLabel *m_encryptPasswordLabel;
-    QLineEdit *m_encryptPasswordEdit;
-    
-    QPushButton *m_encryptButton;
-    
-    QLabel *m_decryptFileLabel;
-    QLineEdit *m_decryptFileEdit;
-    QPushButton *m_decryptFileBrowseButton;
-    
-    QLabel *m_decryptOutputLabel;
-    QLineEdit *m_decryptOutputEdit;
-    QPushButton *m_decryptOutputBrowseButton;
-    
-    QLabel *m_decryptPasswordLabel;
-    QLineEdit *m_decryptPasswordEdit;
-    
-    QLabel *m_decryptSecondFactorLabel;
-    QLineEdit *m_decryptSecondFactorEdit;
-    
-    QPushButton *m_decryptButton;
-    
-    QProgressBar *m_progressBar;
-    QLabel *m_statusLabel;
+    QProgressBar* m_progressBar;
+    QLabel* m_statusLabel;
+    QTimer m_statusTimer;
     
     // Core components
     Encryptor m_encryptor;
-    
-    // Status message timer
-    QTimer m_statusTimer;
 };
 
 } // namespace crusty
