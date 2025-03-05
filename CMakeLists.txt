@@ -28,7 +28,6 @@ corrosion_import_crate(MANIFEST_PATH rust/crypto/Cargo.toml)
 add_library(cpp_components
     src/cpp/core/encryptor.cpp
     src/cpp/core/file_operations.cpp
-    src/cpp/utils/two_factor_auth.cpp
 )
 target_include_directories(cpp_components PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp
@@ -41,8 +40,6 @@ set(CMAKE_AUTOUIC ON)
 
 add_library(qt_ui
     src/cpp/ui/main_window.cpp
-    src/cpp/ui/encryption_dialog.cpp
-    src/cpp/ui/decryption_dialog.cpp
 )
 target_link_libraries(qt_ui PRIVATE 
     Qt6::Core 
