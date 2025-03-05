@@ -1,6 +1,6 @@
-# CRUSTy - A Secure File Encryption Application
+# CRUSTy-Core - A Secure File Encryption Application
 
-CRUSTy is a robust, secure file encryption application that implements AES-256-GCM authenticated encryption with a focus on security, usability, and extensibility. This repository (CRUSTy-Core) contains the hybrid C++/Rust implementation, which combines:
+CRUSTy-Core is a robust, secure file encryption application that implements AES-256-GCM authenticated encryption with a focus on security, usability, and extensibility. This repository contains the hybrid C++/Rust implementation, which combines:
 
 - A modern Qt-based user interface (C++)
 - Core application logic in C++
@@ -12,6 +12,12 @@ It provides a comprehensive solution for protecting sensitive data through stron
 ## Quick Start
 
 For detailed installation and usage instructions, please see the [Usage Guide](Documentation/USAGE.md).
+
+## Documentation
+
+- [Usage Guide](Documentation/USAGE.md) - Instructions for end users
+- [Developer Setup Guide](Documentation/DEVELOPER_SETUP.md) - Guide for setting up the development environment
+- [API Reference](Documentation/API_REFERENCE.md) - Detailed API documentation
 
 ## Features
 
@@ -32,8 +38,8 @@ For detailed installation and usage instructions, please see the [Usage Guide](D
 
 ## Security Considerations
 
-- DO NOT use CRUSTy for critical file encryption. This is purely an educational proof-of-concept
-- CRUSTy uses AES-256-GCM, a secure authenticated encryption algorithm
+- DO NOT use CRUSTy-Core for critical file encryption. This is purely an educational proof-of-concept
+- CRUSTy-Core uses AES-256-GCM, a secure authenticated encryption algorithm
 - Each file is encrypted with a unique nonce to prevent replay attacks
 - The application has not been formally audited for security vulnerabilities
 - For highly sensitive data, consider using established encryption tools
@@ -44,4 +50,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Disclaimer
 
-I built CRUSTy for my own learning, but if it can help others that is an amazing benefit. While it uses strong encryption algorithms, it has not been audited for security vulnerabilities. Use at your own risk for sensitive data.
+I built CRUSTy-Core for my own learning, but if it can help others that is an amazing benefit. While it uses strong encryption algorithms, it has not been audited for security vulnerabilities. Use at your own risk for sensitive data.
