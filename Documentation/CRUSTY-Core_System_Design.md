@@ -48,7 +48,7 @@ flowchart TD
     classDef rust fill:#dea584,stroke:#000,color:#000;
     classDef cpp fill:#659ad2,stroke:#000,color:#000;
     classDef ffi fill:#f0e68c,stroke:#000,color:#000;
-    classDef arm fill:#e8e8e8,stroke:#333,color:#333,margin-top:20px;
+    classDef arm fill:#e8e8e8,stroke:#333,color:#333,margin-top:40px;
     
     class A,B,C,D rust;
     class E,F,G cpp;
