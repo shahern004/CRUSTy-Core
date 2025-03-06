@@ -789,7 +789,7 @@ This approach significantly enhances security by ensuring that all untrusted inp
 
 ### 12.4 Core Process Flows
 
-<div style="display: flex; justify-content: space-between;">
+<div style="display: flex;">
 <div style="flex: 1;">
 
 #### Encryption Process Flow
