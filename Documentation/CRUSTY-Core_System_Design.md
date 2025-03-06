@@ -21,32 +21,30 @@ The CRUSTY-Core architecture is built on two key principles:
 
 ```mermaid
 graph TD
-    subgraph "CRUSTY-Core Architecture"
-        subgraph "Rust Layer"
-            A[Command-line Input Handling]
-            B[Network Input]
-            C[Device Commands]
-            D[Input Validation]
-        end
-        
-        subgraph "C++ Layer"
-            E[Cryptographic Core]
-            F[File Operations]
-            G[Application Logic]
-        end
-        
-        subgraph "FFI Boundary"
-            H[Rust-C++ Interface]
-        end
-        
-        A --> D
-        B --> D
-        C --> D
-        D --> H
-        H --> E
-        E --> F
-        E --> G
-    end
+    %% CRUSTY-Core Architecture
+    
+    %% Rust Layer
+    A[Command-line Input Handling]
+    B[Network Input]
+    C[Device Commands]
+    D[Input Validation]
+    
+    %% C++ Layer
+    E[Cryptographic Core]
+    F[File Operations]
+    G[Application Logic]
+    
+    %% FFI Boundary
+    H[Rust-C++ Interface]
+    
+    %% Connections
+    A --> D
+    B --> D
+    C --> D
+    D --> H
+    H --> E
+    E --> F
+    E --> G
 ```
 
 ### 2.3 Dual Functionality
@@ -55,26 +53,24 @@ CRUSTY-Core supports two deployment targets:
 
 ```mermaid
 graph TD
-    subgraph "PC Deployment"
-        A1[Command-line Interface]
-        B1[Local File System]
-        C1[Local Encryption]
-        D1[Embedded Device Management]
-    end
+    %% PC Deployment
+    A1[Command-line Interface]
+    B1[Local File System]
+    C1[Local Encryption]
+    D1[Embedded Device Management]
     
-    subgraph "Embedded Deployment"
-        A2[STM32H573I-DK Hardware]
-        B2[Hardware Acceleration]
-        C2[Host Communication]
-        D2[Embedded Encryption Service]
-    end
+    %% Embedded Deployment
+    A2[STM32H573I-DK Hardware]
+    B2[Hardware Acceleration]
+    C2[Host Communication]
+    D2[Embedded Encryption Service]
     
-    subgraph "Shared Components"
-        E1[Rust Input Handling]
-        F1[C++ Crypto Core]
-        G1[Communication Protocol]
-    end
+    %% Shared Components
+    E1[Rust Input Handling]
+    F1[C++ Crypto Core]
+    G1[Communication Protocol]
     
+    %% Connections
     A1 --> E1
     E1 --> F1
     F1 --> C1
@@ -779,36 +775,34 @@ The following diagram illustrates in detail how FFI, CMake, and Corrosion work t
 
 ```mermaid
 graph TD
-    subgraph "Build Process"
-        subgraph "Source Code"
-            CPP[C++ Source Files]
-            Rust[Rust Source Files]
-            Headers[C/C++ Headers]
-        end
-        
-        subgraph "Build System"
-            CMake[CMake Build System]
-            Corrosion[Corrosion CMake Module]
-            Cargo[Rust's Cargo]
-            CXXCompiler[C++ Compiler]
-        end
-        
-        subgraph "Intermediate Artifacts"
-            RustLib[Rust Static Library]
-            CPPObj[C++ Object Files]
-            FFIHeaders[FFI Header Files]
-        end
-        
-        subgraph "Final Output"
-            Binary[Single Executable Binary]
-        end
-        
-        subgraph "Runtime"
-            CPPRuntime[C++ Runtime Components]
-            RustRuntime[Rust Runtime Components]
-            FFIBoundary[FFI Boundary]
-        end
-    end
+    %% Source Code
+    CPP[C++ Source Files]
+    Rust[Rust Source Files]
+    Headers[C/C++ Headers]
+    
+    %% Build System
+    CMake[CMake Build System]
+    Corrosion[Corrosion CMake Module]
+    Cargo[Rust's Cargo]
+    CXXCompiler[C++ Compiler]
+    
+    %% Intermediate Artifacts
+    RustLib[Rust Static Library]
+    CPPObj[C++ Object Files]
+    FFIHeaders[FFI Header Files]
+    
+    %% Final Output
+    Binary[Single Executable Binary]
+    
+    %% Runtime Components
+    CPPRuntime[C++ Runtime Components]
+    RustRuntime[Rust Runtime Components]
+    FFIBoundary[FFI Boundary]
+    
+    %% Memory Model
+    Stack[Stack Memory]
+    HeapCPP[C++ Heap Memory]
+    HeapRust[Rust Heap Memory]
     
     %% Source relationships
     CPP --> Headers
@@ -841,13 +835,7 @@ graph TD
     CXXCompiler -- "4. Compiles C++ with FFI headers" --> CPPObj
     CMake -- "5. Links everything into one binary" --> Binary
     
-    %% Memory model
-    subgraph "Memory Model"
-        Stack[Stack Memory]
-        HeapCPP[C++ Heap Memory]
-        HeapRust[Rust Heap Memory]
-    end
-    
+    %% Memory ownership
     CPPRuntime --> Stack
     CPPRuntime --> HeapCPP
     RustRuntime --> Stack
