@@ -786,90 +786,79 @@ All user inputs and external communications are handled in Rust to leverage its 
 
 This approach significantly enhances security by ensuring that all untrusted input is processed through Rust's memory-safe environment before reaching the C++ core.
 
-### 12.4 FFI, CMake, and Corrosion Integration
+### 12.4 Core Process Flows
 
-The following diagram illustrates how FFI, CMake, and Corrosion work together to integrate C++ and Rust code into a single binary:
+<div style="display: flex; justify-content: space-between;">
+<div style="flex: 1;">
+
+#### Encryption Process Flow
 
 ```mermaid
 flowchart TD
-    %% Core Components
-    CPP["C++ Source Files"] --> Headers["C/C++ Headers"]
-    Rust["Rust Source Files"] --> Headers
+    %% Vertical flow of encryption process
+    A["User Input<br>Command Line"] --> B["Rust: Input<br>Validation"]
+    B --> C["Rust: Path<br>Sanitization"]
+    C --> D["Rust: Password<br>Processing"]
+    D --> E["FFI Boundary"]
+    E --> F["C++: Key<br>Derivation (Argon2)"]
+    F --> G["C++: AES-256-GCM<br>Encryption"]
+    G --> H["C++: File<br>Operations"]
+    H --> I["Encrypted<br>Output File"]
     
-    %% Build System Components
-    CMake["CMake Build System"] --> Corrosion["Corrosion CMake Module"]
-    CMake --> CXXCompiler["C++ Compiler"]
-    Corrosion --> Cargo["Rust's Cargo"]
+    classDef rust fill:#dea584,stroke:#000,color:#000;
+    classDef cpp fill:#659ad2,stroke:#000,color:#000;
+    classDef ffi fill:#f0e68c,stroke:#000,color:#000;
+    classDef io fill:#f8f8f8,stroke:#000,color:#000;
     
-    %% Compilation Process
-    Cargo --> RustLib["Rust Static Library"]
-    CXXCompiler --> CPPObj["C++ Object Files"]
-    Headers --> FFIHeaders["FFI Header Files"]
-    
-    %% Linking Process
-    RustLib --> Binary["Single Executable Binary"]
-    CPPObj --> Binary
-    
-    %% Runtime Components
-    Binary --> CPPRuntime["C++ Runtime"]
-    Binary --> RustRuntime["Rust Runtime"]
-    CPPRuntime <--> FFIBoundary["FFI Boundary"]
-    RustRuntime <--> FFIBoundary
-    
-    %% Process Steps
-    Rust -- "1. Generate C headers" --> FFIHeaders
-    FFIHeaders -- "2. Include headers" --> CPP
-    Cargo -- "3. Compile to static lib" --> RustLib
-    CXXCompiler -- "4. Compile with FFI" --> CPPObj
-    CMake -- "5. Link into binary" --> Binary
-    
-    %% Memory Management
-    CPPRuntime --> HeapCPP["C++ Heap"]
-    RustRuntime --> HeapRust["Rust Heap"]
-    FFIBoundary -- "Memory ownership transfer" --> HeapCPP
-    FFIBoundary -- "Memory ownership transfer" --> HeapRust
+    class A,I io;
+    class B,C,D rust;
+    class F,G,H cpp;
+    class E ffi;
 ```
 
-#### Key Integration Components
+</div>
+<div style="flex: 1;">
 
-1. **FFI (Foreign Function Interface)**:
-   - Defines the boundary between C++ and Rust code
-   - Specifies function signatures that are compatible across languages
-   - Handles type conversions between Rust and C++ types
-   - Manages memory ownership transfer between language runtimes
-   - Provides error propagation mechanisms
+#### Device Communication Flow
 
-2. **CMake Build System**:
-   - Serves as the primary build orchestrator
-   - Configures the build environment for both C++ and Rust
-   - Manages dependencies and build order
-   - Handles platform-specific build settings
-   - Invokes the appropriate compilers and linkers
+```mermaid
+flowchart TD
+    %% Vertical flow of embedded device communication
+    A["PC: Detect<br>Embedded Device"] --> B["PC: Format<br>Command"]
+    B --> C["PC: Validate<br>Message"]
+    C --> D["PC: Send<br>to Device"]
+    D --> E["Device: Receive<br>Message"]
+    E --> F["Device: Validate<br>Format"]
+    F --> G["Device: Execute<br>Crypto Op"]
+    G --> H["Device: Format<br>Response"]
+    H --> I["Device: Send<br>Response"]
+    I --> J["PC: Process<br>Response"]
+    
+    classDef pc fill:#dea584,stroke:#000,color:#000;
+    classDef device fill:#659ad2,stroke:#000,color:#000;
+    classDef comm fill:#f0e68c,stroke:#000,color:#000;
+    
+    class A,B,C,J pc;
+    class E,F,G,H device;
+    class D,I comm;
+```
 
-3. **Corrosion CMake Module**:
-   - Integrates Rust's Cargo build system with CMake
-   - Automatically generates CMake targets for Rust crates
-   - Handles Rust compilation flags and feature configuration
-   - Ensures Rust libraries are built with the correct settings
-   - Makes Rust artifacts available to the CMake linking process
+</div>
+</div>
 
-4. **cbindgen**:
-   - Analyzes Rust code to generate C/C++ compatible headers
-   - Ensures type definitions are consistent across language boundaries
-   - Handles complex type mappings between Rust and C++
-   - Generates documentation for FFI functions
-   - Supports attributes for customizing the generated headers
+These flow charts illustrate two key processes in the CRUSTY-Core system:
 
-5. **Static Linking Process**:
-   - Rust code is compiled to a static library (.a/.lib)
-   - C++ code is compiled to object files
-   - The linker combines all objects into a single executable
-   - Symbol resolution happens across language boundaries
-   - Results in a single binary with no external dependencies on Rust
+1. **Encryption Process Flow** shows how user input is processed through the system to create an encrypted file:
+   - Rust handles all input validation, path sanitization, and password processing
+   - Data crosses the FFI boundary to the C++ side
+   - C++ performs key derivation, encryption, and file operations
+   - The process results in a secure encrypted output file
 
-6. **Runtime Integration**:
-   - Both language runtimes coexist in the same process
-   - Memory is shared through carefully defined interfaces
-   - Stack frames can interleave between languages
-   - Heap allocations are managed by their respective language
-   - Ownership transfer is explicit at FFI boundaries
+2. **Device Communication Flow** shows how the PC and embedded device communicate:
+   - PC detects the device and prepares a command message
+   - The message is sent to the device over a secure channel
+   - The device validates, processes, and executes the command
+   - Results are formatted and sent back to the PC
+   - The PC processes the response
+
+Both flows demonstrate the clear separation of responsibilities between Rust (for input handling and validation) and C++ (for cryptographic operations and performance-critical code).
