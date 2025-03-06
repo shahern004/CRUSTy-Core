@@ -1,11 +1,11 @@
 # CRUSTY-Core System Design Document
 
 **Author: Shawn Ahern**  
-**Date: March 4, 2025**
+**Date: March 6, 2025**
 
 ## 1. Introduction
 
-This document describes the system design for CRUSTY-Core, a secure file encryption application with dual functionality: a PC application with Qt UI and an embedded deployment on STM32H573I-DK hardware. The architecture leverages Rust for all input handling while maintaining the cryptographic core in C++, combining the memory safety benefits of Rust with the performance and compatibility of C++.
+This document describes the system design for CRUSTY-Core, a secure file encryption application with dual functionality: a command-line PC application and an embedded deployment on STM32H573I-DK hardware. The architecture leverages Rust for all input handling while maintaining the cryptographic core in C++, combining the memory safety benefits of Rust with the performance and compatibility of C++.
 
 ## 2. Architectural Overview
 
@@ -23,7 +23,7 @@ The CRUSTY-Core architecture is built on two key principles:
 graph TD
     subgraph "CRUSTY-Core Architecture"
         subgraph "Rust Layer"
-            A[User Input Handling]
+            A[Command-line Input Handling]
             B[Network Input]
             C[Device Commands]
             D[Input Validation]
@@ -56,7 +56,7 @@ CRUSTY-Core supports two deployment targets:
 ```mermaid
 graph TD
     subgraph "PC Deployment"
-        A1[Qt GUI]
+        A1[Command-line Interface]
         B1[Local File System]
         C1[Local Encryption]
         D1[Embedded Device Management]
@@ -92,7 +92,7 @@ graph TD
 
 The Rust layer is responsible for processing all inputs from users, networks, and devices. This includes:
 
-- GUI input validation
+- Command-line input validation
 - Command parsing and validation
 - Network protocol handling
 - File data validation
@@ -190,16 +190,25 @@ pub extern "C" fn validate_and_encrypt(
 
 ## 4. PC Deployment
 
-### 4.1 Qt User Interface
+### 4.1 Command-Line Interface
 
-The PC deployment includes a Qt-based user interface that provides:
+The PC deployment includes a command-line interface that provides:
 
-- File selection for encryption/decryption
-- Password input
-- Progress reporting
-- Embedded device management
+- File selection for encryption/decryption via path arguments
+- Password input via secure prompt or file
+- Progress reporting to standard output
+- Embedded device management through specific commands
 
-All user inputs from the Qt UI are passed to the Rust layer for validation before being processed.
+All user inputs from the command line are passed to the Rust layer for validation before being processed.
+
+**Example: Command-Line Usage**
+
+```
+crusty-core encrypt --input file.txt --output file.enc --password-prompt
+crusty-core decrypt --input file.enc --output file.txt --password-file key.txt
+crusty-core device-list
+crusty-core device-install --firmware firmware.bin --device /dev/ttyUSB0
+```
 
 ### 4.2 Local Encryption
 
@@ -403,6 +412,14 @@ Rust's ownership model ensures memory safety for all input handling:
 - No data races
 - Explicit error handling
 
+The C++ code follows NSA secure coding practices for memory safety:
+
+- Smart pointers (std::unique_ptr, std::shared_ptr) for automatic resource management
+- RAII patterns to ensure proper cleanup
+- Bounds checking for all array and buffer operations
+- SecureData template with automatic memory wiping for sensitive data
+- Avoiding raw pointers and manual memory management
+
 ### 8.2 Input Validation
 
 All inputs are validated in Rust before processing:
@@ -411,6 +428,14 @@ All inputs are validated in Rust before processing:
 - Range validation
 - Format validation
 - Sanitization
+
+Input validation follows these principles:
+
+- All inputs are validated at trust boundaries
+- Allowlist validation is used rather than blocklists
+- Input validation is applied consistently across all entry points
+- Validation failures result in secure error states
+- Path sanitization prevents directory traversal attacks
 
 ### 8.3 Secure Communication
 
@@ -421,6 +446,14 @@ Communication between PC and embedded device is secured:
 - Protection against replay attacks
 - Error detection
 
+Communication security is enhanced with:
+
+- Secure protocol with version negotiation
+- Session-based authentication
+- Integrity checking for all messages
+- Timeout and retry mechanisms with secure failure modes
+- Protection against man-in-the-middle attacks
+
 ### 8.4 Hardware Security
 
 The STM32H5 provides hardware security features:
@@ -429,6 +462,34 @@ The STM32H5 provides hardware security features:
 - Secure storage
 - Hardware isolation
 - Side-channel attack countermeasures
+
+Additional hardware security measures include:
+
+- Memory Protection Unit (MPU) configuration to isolate sensitive operations
+- Disabling debug interfaces in production builds
+- Countermeasures against timing and power analysis attacks
+- Secure key storage in isolated memory regions
+- Hardware-based random number generation
+
+### 8.5 Compiler Hardening
+
+The build system enables compiler security flags to enhance protection:
+
+- Stack protection mechanisms to prevent buffer overflow attacks
+- Address Space Layout Randomization (ASLR) for increased memory access security
+- Data Execution Prevention (DEP) to prevent code execution from data pages
+- Control Flow Guard to prevent hijacking of program control flow
+- Position Independent Executable (PIE) support for enhanced security
+
+### 8.6 Error Handling
+
+Comprehensive error handling ensures secure operation:
+
+- All predictable exceptions are identified and handled
+- Error messages don't disclose sensitive information
+- Graceful degradation in case of errors
+- Secure default states on failure
+- Comprehensive logging of security-relevant errors
 
 ## 9. Performance Considerations
 
@@ -466,14 +527,34 @@ The PC target uses parallel processing for large files:
 
 ## 10. User Experience
 
-### 10.1 PC Application
+### 10.1 Command-Line Interface
 
-The PC application provides a seamless user experience:
+The command-line interface provides a streamlined user experience:
 
-- Intuitive file selection and operation
-- Clear progress reporting
-- Embedded device management
-- Error reporting and recovery
+- Simple and consistent command structure
+- Clear progress reporting with percentage and estimated time
+- Detailed error messages with suggestions for resolution
+- Help system with examples and documentation
+- Support for both interactive and scripted usage
+
+**Example: Command-Line Help**
+
+```
+CRUSTY-Core - Secure File Encryption
+
+USAGE:
+    crusty-core [COMMAND] [OPTIONS]
+
+COMMANDS:
+    encrypt     Encrypt a file
+    decrypt     Decrypt a file
+    device      Manage embedded devices
+    key         Manage encryption keys
+    help        Display help information
+
+For more information on a specific command, run:
+    crusty-core [COMMAND] --help
+```
 
 ### 10.2 Encryption Modes
 
@@ -481,7 +562,7 @@ Users can choose between local and embedded encryption:
 
 ```mermaid
 graph TD
-    A[User Selects File] --> B[Choose Encryption Mode]
+    A[User Specifies File] --> B[Choose Encryption Mode]
     B --> C[Local Encryption]
     B --> D[Embedded Encryption]
     C --> E[Process Locally]
@@ -494,12 +575,28 @@ graph TD
 
 ### 10.3 Embedded Installation
 
-The PC application provides a simple interface for installing CRUSTY-Core on embedded devices:
+The command-line interface provides commands for installing CRUSTY-Core on embedded devices:
 
-- Device detection
-- Firmware installation
-- Configuration
-- Verification
+- Device detection with `device-list` command
+- Firmware installation with `device-install` command
+- Configuration with `device-configure` command
+- Verification with `device-verify` command
+
+**Example: Device Management Commands**
+
+```
+# List available devices
+crusty-core device list
+
+# Install firmware on a device
+crusty-core device install --firmware firmware.bin --device /dev/ttyUSB0
+
+# Configure a device
+crusty-core device configure --device /dev/ttyUSB0 --config config.json
+
+# Verify device installation
+crusty-core device verify --device /dev/ttyUSB0
+```
 
 ## 11. Conclusion
 
@@ -511,18 +608,18 @@ The dual-target architecture supports both PC and embedded deployments, providin
 
 ### 12.1 Current Status Overview
 
-The CRUSTy-Core project has established its core architecture and implemented basic encryption/decryption functionality. The hybrid C++/Rust approach is working well, with Rust handling cryptographic operations and C++ providing the application framework and UI. However, many UI features are defined but not fully implemented, and the embedded target implementation has not been started.
+The CRUSTy-Core project has established its core architecture and implemented basic encryption/decryption functionality. The hybrid C++/Rust approach is working well, with Rust handling input validation and C++ providing the cryptographic core. The project is now focused on a command-line interface approach, removing the Qt UI dependency until further notice.
 
 Key accomplishments:
 - Core architecture with C++/Rust integration is implemented
 - AES-256-GCM encryption with Argon2 key derivation is functional
-- Basic Qt UI framework is in place
 - File operations and encryption/decryption are working
+- FFI boundary between C++ and Rust is defined and functional
 
 Current challenges:
-- Qt DLL dependency issue: Qt DLLs are not automatically copied to the build directory
-- Many UI features are defined but show "not yet implemented" messages
+- Command-line interface needs to be implemented
 - Embedded target implementation has not been started
+- Comprehensive security features need to be completed
 
 ### 12.2 Revised Development Phases
 
@@ -532,74 +629,70 @@ Current challenges:
 - Project structure, build system, and interface definitions are in place
 - FFI boundary between C++ and Rust is defined and functional
 - CMake build system with Corrosion integration is working
-- Basic Qt application shell is implemented
 
 **Objectives:**
 - Fork the CRUSTy repository and establish the new project structure
 - Define the interface between C++ and Rust components
 - Set up the dual-target build system for PC and embedded deployments
-- Set up the basic Qt application framework
 
 **Key Deliverables:**
 - Project repository with initial structure and build system
 - Interface definitions for cross-language communication
 - Build configuration for both PC and STM32H5 targets
-- Basic Qt application shell with placeholder UI
 
 **Technical Approach:**
-The FFI boundary will be carefully designed to ensure type safety and memory safety across language boundaries. The interface will include functions for data encryption/decryption, password hashing, and key derivation. A C++ wrapper class will provide a clean, object-oriented interface to the Rust input handling functions. The build system will support conditional compilation for both PC and embedded targets.
+The FFI boundary has been carefully designed to ensure type safety and memory safety across language boundaries. The interface includes functions for data encryption/decryption, password hashing, and key derivation. A C++ wrapper class provides a clean, object-oriented interface to the Rust input handling functions. The build system supports conditional compilation for both PC and embedded targets.
 
-#### Phase 2A: Complete Basic UI Implementation
+#### Phase 2A: Command-Line Interface Implementation
 
-**Current Status:** ⚠️ PARTIALLY COMPLETED
-- Basic encryption/decryption UI is implemented
-- File operations are implemented but file browser functionality is incomplete
-- Many UI features show "not yet implemented" messages
-- Qt DLL dependency issue exists
+**Current Status:** 🔄 IN PROGRESS
+- Basic file operations are implemented
+- Command-line argument parsing needs to be implemented
+- Progress reporting and error handling need improvement
 
 **Objectives:**
-- Complete the file browser functionality
+- Implement command-line argument parsing
+- Create a consistent command structure
 - Implement batch processing for multiple files
-- Implement settings dialog
-- Implement key management
-- Resolve Qt DLL dependency issue
-- Remove unnecessary UI elements
+- Add progress reporting to standard output
+- Implement key management commands
 
 **Key Deliverables:**
-- Fully functional file browser with proper directory navigation
+- Fully functional command-line interface
 - Batch processing for encrypting/decrypting multiple files
-- Settings dialog for configuring application preferences
-- Key management interface for generating, saving, and loading encryption keys
-- Deployment configuration to handle Qt DLL dependencies
-- Clean UI without unnecessary elements
+- Progress reporting with percentage and estimated time
+- Key management functionality for generating, saving, and loading encryption keys
+- Comprehensive help system with examples
 
 **Technical Approach:**
-The file browser will be enhanced to support proper directory navigation and file selection. Batch processing will be implemented to handle multiple files with a single operation. The settings dialog will allow users to configure application preferences such as default directories and UI options. Key management will provide functionality for generating, saving, and loading encryption keys. A post-build step will be added to the CMake configuration to copy required Qt DLLs to the build directory. Unnecessary UI elements will be removed to simplify the interface.
+The command-line interface will use a modern argument parsing library to handle command-line options. The interface will follow a consistent command structure with subcommands for different operations. Batch processing will be implemented to handle multiple files with a single command. Progress reporting will provide real-time updates to standard output. Key management will provide functionality for generating, saving, and loading encryption keys.
 
 #### Phase 2B: Implement Enhanced Security Features
 
 **Current Status:** ⚠️ PARTIALLY IMPLEMENTED
 - Basic security features are implemented
-- Password strength meter is implemented but could be enhanced
+- Password strength validation needs enhancement
 - Key management is not implemented
 
 **Objectives:**
 - Enhance password strength requirements
 - Implement secure key storage
 - Add encryption metadata and verification
+- Implement NSA secure coding practices
 
 **Key Deliverables:**
-- Enhanced password strength validation and feedback
+- Enhanced password strength validation
 - Secure key storage with proper encryption
 - File metadata for verification and integrity checking
+- Comprehensive implementation of NSA secure coding practices
 
 **Technical Approach:**
-Password strength requirements will be enhanced with better validation and feedback. Secure key storage will use proper encryption for storing keys on disk. Encryption metadata will be added to encrypted files to support verification and integrity checking.
+Password strength requirements will be enhanced with better validation. Secure key storage will use proper encryption for storing keys on disk. Encryption metadata will be added to encrypted files to support verification and integrity checking. NSA secure coding practices will be implemented throughout the codebase, including memory safety, input validation, error handling, compiler hardening, and secure logging.
 
 #### Phase 3: Dual-Target Implementation
 
 **Current Status:** ❌ NOT STARTED
-- Embedded target functionality is defined in the UI but not implemented
+- Embedded target functionality is defined but not implemented
 - Communication protocol between PC and embedded device is not implemented
 - Hardware acceleration for cryptographic operations is not implemented
 
@@ -607,38 +700,37 @@ Password strength requirements will be enhanced with better validation and feedb
 - Implement the embedded firmware for STM32H573I-DK
 - Develop the communication protocol between PC and embedded device
 - Implement hardware acceleration for cryptographic operations
-- Add "Install CRUSTy-Core on Embedded System" feature to PC application
+- Add device management commands to the command-line interface
 
 **Key Deliverables:**
 - Functional embedded firmware for STM32H573I-DK
 - Secure communication protocol between PC and embedded device
 - Hardware-accelerated encryption on embedded device
-- PC application feature for installing and configuring embedded firmware
+- Command-line interface for installing and configuring embedded firmware
 
 **Technical Approach:**
-The embedded implementation will leverage the STM32H5 cryptographic hardware accelerators for improved performance. The communication protocol will be implemented in Rust with a focus on security and reliability. The PC application will include features for detecting, installing, and configuring the embedded firmware.
+The embedded implementation will leverage the STM32H5 cryptographic hardware accelerators for improved performance. The communication protocol will be implemented in Rust with a focus on security and reliability. The command-line interface will include commands for detecting, installing, and configuring the embedded firmware.
 
-#### Phase 4: Polish and Optimization
+#### Phase 4: Performance Optimization and Testing
 
 **Current Status:** ❌ NOT STARTED
-- Some UI theming is implemented with a stylesheet
 - Performance optimization for large files is implemented with chunking
 - Comprehensive testing and documentation are not complete
 
 **Objectives:**
-- Complete UI theming and usability enhancements
 - Optimize performance for large files on both PC and embedded targets
+- Implement parallel processing for improved performance
 - Conduct comprehensive testing on both platforms
 - Create user and developer documentation
 
 **Key Deliverables:**
-- Polished user interface with theming support
 - Optimized file handling for large files
+- Parallel processing for improved performance
 - Comprehensive test suite for both PC and embedded targets
 - Complete user and developer documentation
 
 **Technical Approach:**
-Performance optimization will include file chunking for large files and parallel processing where appropriate. The UI will be enhanced with theming support and improved layouts. A comprehensive testing strategy will ensure both the C++ and Rust components function correctly and securely across both deployment targets.
+Performance optimization will include file chunking for large files and parallel processing where appropriate. A comprehensive testing strategy will ensure both the C++ and Rust components function correctly and securely across both deployment targets. Documentation will include a user guide, developer setup guide, and API reference.
 
 ### 12.3 Technical Highlights
 
@@ -658,7 +750,7 @@ The integration between C++ and Rust will be handled through a carefully designe
 The dual-target architecture supports both PC and embedded deployments:
 
 1. **PC Deployment**:
-   - Full Qt GUI for user interaction
+   - Command-line interface for user interaction
    - Local file encryption/decryption
    - Option to offload encryption to connected embedded device
    - Ability to install and configure embedded firmware
@@ -673,7 +765,7 @@ The dual-target architecture supports both PC and embedded deployments:
 
 All user inputs and external communications are handled in Rust to leverage its memory safety features:
 
-- User input from GUI components
+- Command-line arguments and user input
 - Network commands and data
 - Device communications
 - File data validation
