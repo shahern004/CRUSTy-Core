@@ -195,7 +195,7 @@ pub extern "C" fn validate_and_encrypt(
 The PC deployment includes a Qt-based user interface that provides:
 
 - File selection for encryption/decryption
-- Password input and 2FA
+- Password input
 - Progress reporting
 - Embedded device management
 

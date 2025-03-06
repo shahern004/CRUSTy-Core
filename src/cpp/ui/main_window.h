@@ -102,18 +102,6 @@ private slots:
     void showDeviceManagement();
     
     /**
-     * @brief Toggle 2FA for encryption/decryption
-     * 
-     * @param enabled Whether 2FA is enabled
-     */
-    void toggle2FA(bool enabled);
-    
-    /**
-     * @brief Configure 2FA settings
-     */
-    void configure2FA();
-    
-    /**
      * @brief Show about dialog
      */
     void showAbout();
@@ -194,7 +182,6 @@ private:
      * @param sourcePath Source file path
      * @param destPath Destination file path
      * @param password Password for encryption/decryption
-     * @param secondFactor Optional second factor for decryption
      */
     void processCryptoOperation(
         const std::function<void(
@@ -207,7 +194,6 @@ private:
         const QString& sourcePath,
         const QString& destPath,
         const QString& password,
-        const QString& secondFactor = "",
         const QString& successMessage = "Operation completed successfully"
     );
     
@@ -241,8 +227,6 @@ private:
         QLineEdit* fileEdit;
         QLineEdit* outputEdit;
         QLineEdit* passwordEdit;
-        QCheckBox* twoFactorCheckBox;
-        QPushButton* twoFactorConfigButton;
         PasswordStrengthMeter* strengthMeter;
         QPushButton* button;
     } m_encrypt;
@@ -252,7 +236,6 @@ private:
         QLineEdit* fileEdit;
         QLineEdit* outputEdit;
         QLineEdit* passwordEdit;
-        QLineEdit* secondFactorEdit;
         QPushButton* button;
     } m_decrypt;
     
@@ -264,7 +247,6 @@ private:
         QPushButton* removeButton;
         QComboBox* operationCombo;
         QLineEdit* passwordEdit;
-        QLineEdit* secondFactorEdit;
         QPushButton* button;
     } m_batch;
     

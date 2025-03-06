@@ -108,6 +108,21 @@ if(USE_QT)
         rust_crypto
     )
 
+    # For Windows, copy Qt DLLs to the build directory
+    if(WIN32)
+        # Find the windeployqt executable
+        find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${Qt6_DIR}/../../../bin")
+        
+        if(WINDEPLOYQT_EXECUTABLE)
+            add_custom_command(TARGET crusty_qt POST_BUILD
+                COMMAND ${WINDEPLOYQT_EXECUTABLE} --no-translations --no-system-d3d-compiler "$<TARGET_FILE:crusty_qt>"
+                COMMENT "Running windeployqt to copy Qt DLLs..."
+            )
+        else()
+            message(WARNING "windeployqt not found. Qt DLLs will need to be copied manually.")
+        endif()
+    endif()
+
     # Install rules for Qt application
     install(TARGETS crusty_qt
         RUNTIME DESTINATION bin

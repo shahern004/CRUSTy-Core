@@ -5,7 +5,6 @@ CRUSTy-Core is a robust, secure file encryption application that implements AES-
 - A modern Qt-based user interface (C++)
 - Core application logic in C++
 - Security-critical cryptographic operations in Rust
-- Two-factor authentication for enhanced security
 
 It provides a comprehensive solution for protecting sensitive data through strong cryptographic primitives while maintaining a user-friendly interface.
 
@@ -23,7 +22,6 @@ For detailed installation and usage instructions, please see the [Usage Guide](D
 
 - **Strong Encryption**: Uses AES-256-GCM for secure, authenticated encryption
 - **Modern User Interface**: Sleek and intuitive GUI built with Qt 6
-- **Two-Factor Authentication**: Enhanced security with TOTP-based second factor
 - **Flexible Operation Modes**:
   - Single file encryption/decryption
   - Batch processing for multiple files

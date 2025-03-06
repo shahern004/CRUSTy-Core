@@ -406,15 +406,6 @@ QWidget* MainWindow::createEncryptTab()
     m_encrypt.strengthMeter = new PasswordStrengthMeter(encryptTab);
     encryptForm->addRow("Password strength:", m_encrypt.strengthMeter);
     
-    // Add 2FA checkbox
-    QHBoxLayout* twoFactorLayout = new QHBoxLayout();
-    m_encrypt.twoFactorCheckBox = new QCheckBox("Enable Two-Factor Authentication", encryptTab);
-    m_encrypt.twoFactorConfigButton = new QPushButton("Configure...", encryptTab);
-    m_encrypt.twoFactorConfigButton->setEnabled(false);
-    twoFactorLayout->addWidget(m_encrypt.twoFactorCheckBox);
-    twoFactorLayout->addWidget(m_encrypt.twoFactorConfigButton);
-    encryptForm->addRow("", twoFactorLayout);
-    
     // Add encrypt button
     m_encrypt.button = new QPushButton("Encrypt", encryptTab);
     m_encrypt.button->setEnabled(false);
@@ -427,8 +418,6 @@ QWidget* MainWindow::createEncryptTab()
     
     // Connect signals
     connect(m_encrypt.button, &QPushButton::clicked, this, &MainWindow::encryptFile);
-    connect(m_encrypt.twoFactorCheckBox, &QCheckBox::toggled, this, &MainWindow::toggle2FA);
-    connect(m_encrypt.twoFactorConfigButton, &QPushButton::clicked, this, &MainWindow::configure2FA);
     
     return encryptTab;
 }
@@ -461,10 +450,6 @@ QWidget* MainWindow::createDecryptTab()
     m_decrypt.passwordEdit = new QLineEdit(decryptTab);
     m_decrypt.passwordEdit->setEchoMode(QLineEdit::Password);
     decryptForm->addRow("Password:", m_decrypt.passwordEdit);
-    
-    // Add decrypt second factor input
-    m_decrypt.secondFactorEdit = new QLineEdit(decryptTab);
-    decryptForm->addRow("Second factor (if enabled):", m_decrypt.secondFactorEdit);
     
     // Add decrypt button
     m_decrypt.button = new QPushButton("Decrypt", decryptTab);
@@ -526,9 +511,6 @@ QWidget* MainWindow::createBatchTab()
     m_batch.passwordEdit = new QLineEdit(batchTab);
     m_batch.passwordEdit->setEchoMode(QLineEdit::Password);
     settingsLayout->addRow("Password:", m_batch.passwordEdit);
-    
-    m_batch.secondFactorEdit = new QLineEdit(batchTab);
-    settingsLayout->addRow("Second factor (if needed):", m_batch.secondFactorEdit);
     
     // Add batch button
     m_batch.button = new QPushButton("Process Batch", batchTab);
@@ -689,12 +671,12 @@ void MainWindow::setupFileSelectors()
     connect(decryptOutputBrowseButton, &QPushButton::clicked, [this]() {
         QString defaultPath = m_decrypt.outputEdit->text();
         if (defaultPath.isEmpty() && !m_decrypt.fileEdit->text().isEmpty()) {
-            QString sourcePath = m_decrypt.fileEdit->text();
-            if (sourcePath.endsWith(ENCRYPTED_EXTENSION)) {
-                defaultPath = sourcePath;
+            QString inputPath = m_decrypt.fileEdit->text();
+            if (inputPath.endsWith(ENCRYPTED_EXTENSION)) {
+                defaultPath = inputPath;
                 defaultPath.chop(strlen(ENCRYPTED_EXTENSION));
             } else {
-                defaultPath = sourcePath + DECRYPTED_EXTENSION;
+                defaultPath = inputPath + DECRYPTED_EXTENSION;
             }
         }
         
@@ -708,297 +690,3 @@ void MainWindow::setupFileSelectors()
             m_decrypt.outputEdit->setText(filePath);
         }
     });
-    
-    // Connect batch add files button
-    connect(m_batch.addButton, &QPushButton::clicked, [this]() {
-        QStringList files = QFileDialog::getOpenFileNames(
-            this, "Select Files to Process", QDir::homePath(),
-            m_batch.operationCombo->currentIndex() == 0 ? ALL_FILES_FILTER : ENCRYPTED_FILES_FILTER
-        );
-        
-        for (const QString& file : files) {
-            QStandardItem* fileItem = new QStandardItem(file);
-            
-            QString outputPath = file;
-            if (m_batch.operationCombo->currentIndex() == 0) { // Encrypt
-                outputPath += ENCRYPTED_EXTENSION;
-            } else { // Decrypt
-                if (outputPath.endsWith(ENCRYPTED_EXTENSION)) {
-                    outputPath.chop(strlen(ENCRYPTED_EXTENSION));
-                } else {
-                    outputPath += DECRYPTED_EXTENSION;
-                }
-            }
-            
-            QStandardItem* outputItem = new QStandardItem(outputPath);
-            QStandardItem* statusItem = new QStandardItem("Pending");
-            
-            m_batch.fileModel->appendRow({fileItem, outputItem, statusItem});
-        }
-        
-        updateUiState();
-    });
-    
-    // Connect batch remove button
-    connect(m_batch.removeButton, &QPushButton::clicked, [this]() {
-        QModelIndexList selection = m_batch.fileTable->selectionModel()->selectedRows();
-        if (!selection.isEmpty()) {
-            m_batch.fileModel->removeRow(selection.first().row());
-        }
-        
-        updateUiState();
-    });
-}
-
-void MainWindow::updateUiState()
-{
-    // Update encrypt button state
-    bool encryptEnabled = !m_encrypt.fileEdit->text().isEmpty() &&
-                         !m_encrypt.outputEdit->text().isEmpty() &&
-                         !m_encrypt.passwordEdit->text().isEmpty();
-    m_encrypt.button->setEnabled(encryptEnabled);
-    
-    // Update decrypt button state
-    bool decryptEnabled = !m_decrypt.fileEdit->text().isEmpty() &&
-                         !m_decrypt.outputEdit->text().isEmpty() &&
-                         !m_decrypt.passwordEdit->text().isEmpty();
-    m_decrypt.button->setEnabled(decryptEnabled);
-    
-    // Update batch button state
-    bool batchEnabled = m_batch.fileModel->rowCount() > 0 &&
-                       !m_batch.passwordEdit->text().isEmpty();
-    m_batch.button->setEnabled(batchEnabled);
-    
-    // Update 2FA config button state
-    m_encrypt.twoFactorConfigButton->setEnabled(m_encrypt.twoFactorCheckBox->isChecked());
-}
-
-void MainWindow::encryptFile()
-{
-    const QString& sourcePath = m_encrypt.fileEdit->text();
-    const QString& destPath = m_encrypt.outputEdit->text();
-    const QString& password = m_encrypt.passwordEdit->text();
-    
-    if (!confirmFileOverwrite(destPath)) {
-        return;
-    }
-    
-    processCryptoOperation(
-        [this](const std::string& src, const std::string& dst, const std::string& pwd, 
-               const std::string& secondFactor, const std::function<void(float)>& progressCallback) {
-            // Note: secondFactor is ignored as the current implementation doesn't support it
-            m_encryptor.encryptFile(src, dst, pwd, progressCallback);
-        },
-        sourcePath,
-        destPath,
-        password,
-        m_encrypt.twoFactorCheckBox->isChecked() ? "2fa-token" : "",
-        "File encrypted successfully"
-    );
-}
-
-void MainWindow::decryptFile()
-{
-    const QString& sourcePath = m_decrypt.fileEdit->text();
-    const QString& destPath = m_decrypt.outputEdit->text();
-    const QString& password = m_decrypt.passwordEdit->text();
-    const QString& secondFactor = m_decrypt.secondFactorEdit->text();
-    
-    if (!confirmFileOverwrite(destPath)) {
-        return;
-    }
-    
-    processCryptoOperation(
-        [this](const std::string& src, const std::string& dst, const std::string& pwd, 
-               const std::string& secondFactor, const std::function<void(float)>& progressCallback) {
-            // Note: secondFactor is ignored as the current implementation doesn't support it
-            m_encryptor.decryptFile(src, dst, pwd, progressCallback);
-        },
-        sourcePath,
-        destPath,
-        password,
-        secondFactor,
-        "File decrypted successfully"
-    );
-}
-
-void MainWindow::processBatch()
-{
-    // TODO: Implement batch processing
-    showStatusMessage("Batch processing not yet implemented", true);
-}
-
-void MainWindow::openFile()
-{
-    QString filePath = QFileDialog::getOpenFileName(
-        this, "Open File", QDir::homePath(), ALL_FILES_FILTER
-    );
-    
-    if (!filePath.isEmpty()) {
-        QFileInfo fileInfo(filePath);
-        if (fileInfo.isFile()) {
-            if (fileInfo.suffix() == "encrypted") {
-                m_decrypt.fileEdit->setText(filePath);
-                m_operationTabWidget->setCurrentIndex(1); // Switch to decrypt tab
-            } else {
-                m_encrypt.fileEdit->setText(filePath);
-                m_operationTabWidget->setCurrentIndex(0); // Switch to encrypt tab
-            }
-        }
-    }
-}
-
-void MainWindow::refreshFileList()
-{
-    // TODO: Implement file list refresh
-    showStatusMessage("File list refresh not yet implemented");
-}
-
-void MainWindow::onFileSelected(const QModelIndex& index)
-{
-    if (!index.isValid()) {
-        return;
-    }
-    
-    // Get the file path from the hidden column
-    QString filePath = m_fileSortModel->data(
-        m_fileSortModel->index(index.row(), FILE_PATH_COLUMN)
-    ).toString();
-    
-    if (filePath.isEmpty()) {
-        return;
-    }
-    
-    QFileInfo fileInfo(filePath);
-    if (fileInfo.isFile()) {
-        if (fileInfo.suffix() == "encrypted") {
-            m_decrypt.fileEdit->setText(filePath);
-            m_operationTabWidget->setCurrentIndex(1); // Switch to decrypt tab
-        } else {
-            m_encrypt.fileEdit->setText(filePath);
-            m_operationTabWidget->setCurrentIndex(0); // Switch to encrypt tab
-        }
-    }
-}
-
-void MainWindow::showSettings()
-{
-    // TODO: Implement settings dialog
-    showStatusMessage("Settings dialog not yet implemented");
-}
-
-void MainWindow::showKeyManagement()
-{
-    // TODO: Implement key management
-    showStatusMessage("Key management not yet implemented");
-}
-
-void MainWindow::showDeviceManagement()
-{
-    m_operationTabWidget->setCurrentIndex(3); // Switch to device tab
-}
-
-void MainWindow::toggle2FA(bool enabled)
-{
-    m_encrypt.twoFactorConfigButton->setEnabled(enabled);
-}
-
-void MainWindow::configure2FA()
-{
-    // TODO: Implement 2FA configuration
-    showStatusMessage("2FA configuration not yet implemented");
-}
-
-void MainWindow::showAbout()
-{
-    QMessageBox::about(this, "About CRUSTy-Core",
-        "<h3>CRUSTy-Core</h3>"
-        "<p>Version 1.0.0</p>"
-        "<p>A secure file encryption utility using Rust cryptography.</p>"
-        "<p>&copy; 2025 CRUSTy-Core Team</p>"
-    );
-}
-
-void MainWindow::showStatusMessage(const QString& message, bool isError)
-{
-    m_statusLabel->setText(message);
-    m_statusLabel->setStyleSheet(isError ? "color: red;" : "color: green;");
-    m_statusTimer.start(STATUS_MESSAGE_DURATION_MS);
-}
-
-bool MainWindow::confirmFileOverwrite(const QString& filePath)
-{
-    QFileInfo fileInfo(filePath);
-    if (fileInfo.exists()) {
-        QMessageBox::StandardButton result = QMessageBox::question(
-            this,
-            "Confirm Overwrite",
-            QString("The file '%1' already exists. Do you want to overwrite it?").arg(filePath),
-            QMessageBox::Yes | QMessageBox::No
-        );
-        
-        return result == QMessageBox::Yes;
-    }
-    
-    return true;
-}
-
-void MainWindow::processCryptoOperation(
-    const std::function<void(
-        const std::string&, 
-        const std::string&, 
-        const std::string&, 
-        const std::string&, 
-        const std::function<void(float)>&
-    )>& operation,
-    const QString& sourcePath,
-    const QString& destPath,
-    const QString& password,
-    const QString& secondFactor,
-    const QString& successMessage
-)
-{
-    // Show progress bar
-    m_progressBar->setValue(0);
-    m_progressBar->setVisible(true);
-    
-    // Disable UI during operation
-    setEnabled(false);
-    
-    // Create progress callback
-    auto progressCallback = [this](float progress) {
-        // Update progress bar from the main thread
-        QMetaObject::invokeMethod(m_progressBar, "setValue", Qt::QueuedConnection,
-            Q_ARG(int, static_cast<int>(progress * 100)));
-    };
-    
-    // Run operation in a separate thread
-    std::thread([=, this]() {
-        try {
-            operation(
-                sourcePath.toStdString(),
-                destPath.toStdString(),
-                password.toStdString(),
-                secondFactor.toStdString(),
-                progressCallback
-            );
-            
-            // Operation completed successfully
-            QMetaObject::invokeMethod(this, [this, successMessage]() {
-                showStatusMessage(successMessage);
-                m_progressBar->setVisible(false);
-                setEnabled(true);
-            }, Qt::QueuedConnection);
-        }
-        catch (const std::exception& e) {
-            // Operation failed
-            QMetaObject::invokeMethod(this, [this, e]() {
-                showStatusMessage(QString("Error: %1").arg(e.what()), true);
-                m_progressBar->setVisible(false);
-                setEnabled(true);
-            }, Qt::QueuedConnection);
-        }
-    }).detach();
-}
-
-} // namespace crusty
