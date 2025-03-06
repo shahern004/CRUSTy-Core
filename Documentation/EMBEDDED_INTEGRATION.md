@@ -1,5 +1,7 @@
 # Embedded Architecture: Combining Rust and C++ in a Single Binary
 
+Proof of concept by Shawn Ahern
+
 CRUSTy-Core's embedded implementation demonstrates a powerful approach to combining Rust and C++ code within a single cortex processor. This section details the architecture from the perspective of an embedded system providing encryption services to other hosts.
 
 ## Integration Architecture
