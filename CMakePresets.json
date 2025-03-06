@@ -4,13 +4,37 @@
         {
             "name": "Configure preset using toolchain file",
             "displayName": "Configure preset using toolchain file",
-            "description": "Sets Ninja generator, build and install directory",
+            "description": "Sets Visual Studio generator, build and install directory",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "Qt6_DIR": "C:/Qt/6.6.1/msvc2019_64/lib/cmake/Qt6"
+            }
+        },
+        {
+            "name": "windows-msvc",
+            "displayName": "Windows MSVC",
+            "description": "Target Windows with MSVC compiler",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "architecture": "x64",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+            }
+        },
+        {
+            "name": "windows-mingw",
+            "displayName": "Windows MinGW",
+            "description": "Target Windows with MinGW compiler",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_TOOLCHAIN_FILE": "",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "C:/msys64/mingw64/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "C:/msys64/mingw64/bin/g++.exe"
             }
         }
     ]

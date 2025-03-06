@@ -2,16 +2,21 @@
 #include "path_utils.h"
 #include "audit_log.h"
 
+#include <fstream>
+#include <filesystem>
+
+#ifndef NO_QT_UI
 #include <QtWidgets/QFileDialog>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStandardPaths>
-#include <fstream>
+#endif
 
 namespace crusty {
 
 namespace {
 
+#ifndef NO_QT_UI
 QStringList convertToQStringList(const std::vector<std::string>& stringVector) {
     QStringList result;
     for (const auto& str : stringVector) {
@@ -32,6 +37,32 @@ std::vector<std::string> convertToStdVector(const QStringList& stringList) {
 QString toQString(const std::string& str) {
     return QString::fromStdString(str);
 }
+#endif
+
+// Get the home directory path
+std::string getHomeDirectory() {
+#ifndef NO_QT_UI
+    return QDir::homePath().toStdString();
+#else
+    // Platform-specific fallback
+#ifdef _WIN32
+    const char* homeDir = std::getenv("USERPROFILE");
+    if (homeDir) return homeDir;
+    
+    const char* homeDrive = std::getenv("HOMEDRIVE");
+    const char* homePath = std::getenv("HOMEPATH");
+    if (homeDrive && homePath) {
+        return std::string(homeDrive) + std::string(homePath);
+    }
+    
+    return "C:\\";
+#else
+    const char* homeDir = std::getenv("HOME");
+    if (homeDir) return homeDir;
+    return "/";
+#endif
+#endif
+}
 
 } // anonymous namespace
 
@@ -40,6 +71,7 @@ std::string FileOperations::selectFile(
     const std::string& filter,
     bool forSaving
 ) const {
+#ifndef NO_QT_UI
     QString selectedFile;
     
     if (!forSaving) {
@@ -59,6 +91,16 @@ std::string FileOperations::selectFile(
     }
     
     std::string result = selectedFile.toStdString();
+#else
+    // CLI version - return a default path in the home directory
+    std::string result = getHomeDirectory();
+    if (forSaving) {
+        result += "/output.txt";
+    } else {
+        result += "/input.txt";
+    }
+    LOG_WARNING("File dialog not available in CLI mode. Using default path: " + result);
+#endif
     
     if (!result.empty()) {
         try {
@@ -78,6 +120,9 @@ std::vector<std::string> FileOperations::selectMultipleFiles(
     const std::string& title,
     const std::string& filter
 ) const {
+    std::vector<std::string> result;
+    
+#ifndef NO_QT_UI
     QStringList selectedFiles = QFileDialog::getOpenFileNames(
         nullptr,
         toQString(title),
@@ -85,7 +130,13 @@ std::vector<std::string> FileOperations::selectMultipleFiles(
         toQString(filter)
     );
     
-    std::vector<std::string> result = convertToStdVector(selectedFiles);
+    result = convertToStdVector(selectedFiles);
+#else
+    // CLI version - return a default path in the home directory
+    std::string defaultPath = getHomeDirectory() + "/input.txt";
+    result.push_back(defaultPath);
+    LOG_WARNING("Multiple file dialog not available in CLI mode. Using default path: " + defaultPath);
+#endif
     
     // Sanitize all paths
     std::vector<std::string> sanitizedPaths;
@@ -107,6 +158,7 @@ std::vector<std::string> FileOperations::selectMultipleFiles(
 }
 
 std::string FileOperations::selectDirectory(const std::string& title) const {
+#ifndef NO_QT_UI
     QString selectedDir = QFileDialog::getExistingDirectory(
         nullptr,
         toQString(title),
@@ -115,6 +167,11 @@ std::string FileOperations::selectDirectory(const std::string& title) const {
     );
     
     std::string result = selectedDir.toStdString();
+#else
+    // CLI version - return the home directory
+    std::string result = getHomeDirectory();
+    LOG_WARNING("Directory dialog not available in CLI mode. Using home directory: " + result);
+#endif
     
     if (!result.empty()) {
         try {

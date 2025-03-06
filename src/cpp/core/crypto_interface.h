@@ -6,32 +6,6 @@
 #include <ostream>
 #include <new>
 
-namespace crusty {
-namespace crypto {
-
-/// Error codes for cryptographic operations
-enum class CryptoErrorCode {
-    /// Operation completed successfully
-    Success = 0,
-    /// Invalid parameters provided
-    InvalidParams = -1,
-    /// Authentication failed during decryption
-    AuthenticationFailed = -2,
-    /// Error during encryption
-    EncryptionError = -3,
-    /// Error during decryption
-    DecryptionError = -4,
-    /// Error with key derivation
-    KeyDerivationError = -5,
-    /// Buffer too small for output
-    BufferTooSmall = -6,
-    /// Internal error
-    InternalError = -7,
-};
-
-} // namespace crypto
-} // namespace crusty
-
 extern "C" {
 
 /// Encrypts data using AES-256-GCM with the provided password

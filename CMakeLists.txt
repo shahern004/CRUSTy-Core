@@ -25,7 +25,14 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Find Qt packages
-find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
+option(USE_QT "Enable Qt UI components" ON)
+if(USE_QT)
+    find_package(Qt6 COMPONENTS Core Gui Widgets)
+    if(NOT Qt6_FOUND)
+        message(WARNING "Qt6 not found. Building without Qt UI components.")
+        set(USE_QT OFF)
+    endif()
+endif()
 
 # Set up Corrosion for Rust integration
 include(FetchContent)
@@ -60,41 +67,64 @@ add_library(cpp_components
 target_include_directories(cpp_components PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp
 )
-target_link_libraries(cpp_components PUBLIC 
-    Qt6::Core 
-    Qt6::Gui 
-    Qt6::Widgets
-)
 
-# Qt UI components
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
+if(USE_QT)
+    target_link_libraries(cpp_components PUBLIC 
+        Qt6::Core 
+        Qt6::Gui 
+        Qt6::Widgets
+    )
+else()
+    # Define NO_QT_UI when Qt is not available
+    target_compile_definitions(cpp_components PUBLIC NO_QT_UI)
+endif()
 
-add_library(qt_ui
-    src/cpp/ui/main_window.cpp
-    src/cpp/ui/main_window_impl.cpp
-    src/cpp/resources.qrc
-)
-target_link_libraries(qt_ui PRIVATE 
-    Qt6::Core 
-    Qt6::Gui 
-    Qt6::Widgets
-    cpp_components  # Add link to cpp_components library
-)
-target_include_directories(qt_ui PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp
-)
+if(USE_QT)
+    # Qt UI components
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOUIC ON)
 
-# Main application
-add_executable(crusty_qt src/cpp/main.cpp)
-target_link_libraries(crusty_qt PRIVATE 
-    cpp_components 
-    qt_ui 
-    rust_crypto
-)
+    add_library(qt_ui
+        src/cpp/ui/main_window.cpp
+        src/cpp/ui/main_window_impl.cpp
+        src/cpp/resources.qrc
+    )
+    target_link_libraries(qt_ui PRIVATE 
+        Qt6::Core 
+        Qt6::Gui 
+        Qt6::Widgets
+        cpp_components  # Add link to cpp_components library
+    )
+    target_include_directories(qt_ui PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp
+    )
 
-# Install rules
-install(TARGETS crusty_qt
-    RUNTIME DESTINATION bin
-)
+    # Main application with Qt UI
+    add_executable(crusty_qt src/cpp/main.cpp)
+    target_link_libraries(crusty_qt PRIVATE 
+        cpp_components 
+        qt_ui 
+        rust_crypto
+    )
+
+    # Install rules for Qt application
+    install(TARGETS crusty_qt
+        RUNTIME DESTINATION bin
+    )
+else()
+    # Simple CLI application without Qt
+    add_executable(crusty_cli src/cpp/main.cpp)
+    target_link_libraries(crusty_cli PRIVATE 
+        cpp_components 
+        rust_crypto
+    )
+    target_compile_definitions(crusty_cli PRIVATE NO_QT_UI)
+
+    # Install rules for CLI application
+    install(TARGETS crusty_cli
+        RUNTIME DESTINATION bin
+    )
+endif()
+
+# Remove duplicate install rule
