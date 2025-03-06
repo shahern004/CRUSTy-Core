@@ -20,31 +20,39 @@ The CRUSTY-Core architecture is built on two key principles:
 ### 2.2 High-Level Architecture
 
 ```mermaid
-graph TD
-    %% CRUSTY-Core Architecture
+flowchart TD
+    subgraph ARM["Single Binary on ARM Processor"]
+        subgraph Rust["Rust Layer (Memory Safety)"]
+            A["Command-line Input Handling"]
+            B["Network Input                  "]
+            C["Device Commands               "]
+            D["Input Validation              "]
+        end
+        H["Rust-C++ FFI Interface"]
+        subgraph CPP["C++ Layer (Performance)"]
+            E["Cryptographic Core"]
+            F["File Operations   "]
+            G["Application Logic "]
+        end
+    end
     
-    %% Rust Layer
-    A[Command-line Input Handling]
-    B[Network Input]
-    C[Device Commands]
-    D[Input Validation]
+    A-->D
+    B-->D
+    C-->D
+    D-->H
+    H-->E
+    E-->F
+    E-->G
     
-    %% C++ Layer
-    E[Cryptographic Core]
-    F[File Operations]
-    G[Application Logic]
+    classDef rust fill:#dea584,stroke:#000,color:#000;
+    classDef cpp fill:#659ad2,stroke:#000,color:#000;
+    classDef ffi fill:#f0e68c,stroke:#000,color:#000;
+    classDef arm fill:#e8e8e8,stroke:#333,color:#333,margin-top:20px;
     
-    %% FFI Boundary
-    H[Rust-C++ Interface]
-    
-    %% Connections
-    A --> D
-    B --> D
-    C --> D
-    D --> H
-    H --> E
-    E --> F
-    E --> G
+    class A,B,C,D rust;
+    class E,F,G cpp;
+    class H ffi;
+    class ARM arm;
 ```
 
 ### 2.3 Dual Functionality
@@ -329,15 +337,15 @@ Response Message:
 Commands are processed through a pipeline that ensures security at each step:
 
 ```mermaid
-graph LR
-    A[Receive Message<br>receiveData(buffer, len)] --> B[Validate Format<br>validateMessageFormat(buffer)]
-    B --> C[Parse Command<br>cmd = parseCommand(buffer)]
-    C --> D[Validate Parameters<br>validateParams(cmd.params)]
-    D --> E[Execute Command<br>result = executeCommand(cmd)]
-    E --> F[Format Response<br>resp = formatResponse(result)]
-    F --> G[Send Response<br>sendResponse(resp)]
+flowchart LR
+    A["Receive Message<br>receiveData(buffer, len)"] --> B["Validate Format<br>validateMessageFormat(buffer)"]
+    B --> C["Parse Command<br>cmd = parseCommand(buffer)"]
+    C --> D["Validate Parameters<br>validateParams(cmd.params)"]
+    D --> E["Execute Command<br>result = executeCommand(cmd)"]
+    E --> F["Format Response<br>resp = formatResponse(result)"]
+    F --> G["Send Response<br>sendResponse(resp)"]
     
-    classDef code fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef code fill:#f9f9f9,stroke:#333;
     class A,B,C,D,E,F,G code;
 ```
 
@@ -497,18 +505,18 @@ Comprehensive error handling ensures secure operation:
 Large files are processed in chunks to manage memory usage:
 
 ```mermaid
-graph TD
-    A[Input File] --> B[Split into Chunks<br>chunk_size = 1MB]
-    B --> C[Process Chunk 1<br>encryptChunk(chunk1, key)]
-    B --> D[Process Chunk 2<br>encryptChunk(chunk2, key)]
-    B --> E[Process Chunk N<br>encryptChunk(chunkN, key)]
-    C --> F[Combine Results<br>combineEncryptedChunks()]
+flowchart TD
+    A["Input File"] --> B["Split into Chunks<br>chunk_size = 1MB"]
+    B --> C["Process Chunk 1<br>encryptChunk(chunk1, key)"]
+    B --> D["Process Chunk 2<br>encryptChunk(chunk2, key)"]
+    B --> E["Process Chunk N<br>encryptChunk(chunkN, key)"]
+    C --> F["Combine Results<br>combineEncryptedChunks()"]
     D --> F
     E --> F
-    F --> G[Output File<br>writeEncryptedFile()]
+    F --> G["Output File<br>writeEncryptedFile()"]
     
-    classDef code fill:#f9f9f9,stroke:#333,stroke-width:1px;
-    class B,C,D,E,F,G code;
+    classDef code fill:#f9f9f9,stroke:#333;
+    class A,B,C,D,E,F,G code;
 ```
 
 ### 9.2 Hardware Acceleration
@@ -563,18 +571,18 @@ For more information on a specific command, run:
 Users can choose between local and embedded encryption:
 
 ```mermaid
-graph TD
-    A[User Specifies File<br>--input file.txt] --> B[Choose Encryption Mode<br>--mode local|embedded]
-    B --> C[Local Encryption<br>mode = EncryptionMode::Local]
-    B --> D[Embedded Encryption<br>mode = EncryptionMode::Embedded]
-    C --> E[Process Locally<br>encryptor.encryptFile(file, key)]
-    D --> F[Select Device<br>device = findDevice(deviceId)]
-    F --> G[Send to Device<br>device.sendCommand(CMD_ENCRYPT)]
-    G --> H[Process on Device<br>device.waitForResponse()]
-    E --> I[Save Encrypted File<br>writeToFile(encryptedData)]
+flowchart TD
+    A["User Specifies File<br>--input file.txt"] --> B["Choose Encryption Mode<br>--mode local|embedded"]
+    B --> C["Local Encryption<br>mode = EncryptionMode::Local"]
+    B --> D["Embedded Encryption<br>mode = EncryptionMode::Embedded"]
+    C --> E["Process Locally<br>encryptor.encryptFile(file, key)"]
+    D --> F["Select Device<br>device = findDevice(deviceId)"]
+    F --> G["Send to Device<br>device.sendCommand(CMD_ENCRYPT)"]
+    G --> H["Process on Device<br>device.waitForResponse()"]
+    E --> I["Save Encrypted File<br>writeToFile(encryptedData)"]
     H --> I
     
-    classDef code fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef code fill:#f9f9f9,stroke:#333;
     class A,B,C,D,E,F,G,H,I code;
 ```
 
@@ -780,75 +788,44 @@ This approach significantly enhances security by ensuring that all untrusted inp
 
 ### 12.4 FFI, CMake, and Corrosion Integration
 
-The following diagram illustrates in detail how FFI, CMake, and Corrosion work together to integrate C++ and Rust code into a single binary:
+The following diagram illustrates how FFI, CMake, and Corrosion work together to integrate C++ and Rust code into a single binary:
 
 ```mermaid
-graph TD
-    %% Source Code
-    CPP[C++ Source Files]
-    Rust[Rust Source Files]
-    Headers[C/C++ Headers]
+flowchart TD
+    %% Core Components
+    CPP["C++ Source Files"] --> Headers["C/C++ Headers"]
+    Rust["Rust Source Files"] --> Headers
     
-    %% Build System
-    CMake[CMake Build System]
-    Corrosion[Corrosion CMake Module]
-    Cargo[Rust's Cargo]
-    CXXCompiler[C++ Compiler]
+    %% Build System Components
+    CMake["CMake Build System"] --> Corrosion["Corrosion CMake Module"]
+    CMake --> CXXCompiler["C++ Compiler"]
+    Corrosion --> Cargo["Rust's Cargo"]
     
-    %% Intermediate Artifacts
-    RustLib[Rust Static Library]
-    CPPObj[C++ Object Files]
-    FFIHeaders[FFI Header Files]
+    %% Compilation Process
+    Cargo --> RustLib["Rust Static Library"]
+    CXXCompiler --> CPPObj["C++ Object Files"]
+    Headers --> FFIHeaders["FFI Header Files"]
     
-    %% Final Output
-    Binary[Single Executable Binary]
-    
-    %% Runtime Components
-    CPPRuntime[C++ Runtime Components]
-    RustRuntime[Rust Runtime Components]
-    FFIBoundary[FFI Boundary]
-    
-    %% Memory Model
-    Stack[Stack Memory]
-    HeapCPP[C++ Heap Memory]
-    HeapRust[Rust Heap Memory]
-    
-    %% Source relationships
-    CPP --> Headers
-    Rust --> Headers
-    
-    %% Build system flow
-    CMake --> Corrosion
-    CMake --> CXXCompiler
-    Corrosion --> Cargo
-    
-    %% Compilation flow
-    Cargo --> RustLib
-    CXXCompiler --> CPPObj
-    Headers --> FFIHeaders
-    
-    %% Linking flow
-    RustLib --> Binary
+    %% Linking Process
+    RustLib --> Binary["Single Executable Binary"]
     CPPObj --> Binary
     
-    %% Runtime relationships
-    Binary --> CPPRuntime
-    Binary --> RustRuntime
-    CPPRuntime <--> FFIBoundary
+    %% Runtime Components
+    Binary --> CPPRuntime["C++ Runtime"]
+    Binary --> RustRuntime["Rust Runtime"]
+    CPPRuntime <--> FFIBoundary["FFI Boundary"]
     RustRuntime <--> FFIBoundary
     
-    %% Detailed process steps
-    Rust -- "1. cbindgen generates C headers" --> FFIHeaders
-    FFIHeaders -- "2. C++ includes headers" --> CPP
-    Cargo -- "3. Compiles Rust to static lib" --> RustLib
-    CXXCompiler -- "4. Compiles C++ with FFI headers" --> CPPObj
-    CMake -- "5. Links everything into one binary" --> Binary
+    %% Process Steps
+    Rust -- "1. Generate C headers" --> FFIHeaders
+    FFIHeaders -- "2. Include headers" --> CPP
+    Cargo -- "3. Compile to static lib" --> RustLib
+    CXXCompiler -- "4. Compile with FFI" --> CPPObj
+    CMake -- "5. Link into binary" --> Binary
     
-    %% Memory ownership
-    CPPRuntime --> Stack
-    CPPRuntime --> HeapCPP
-    RustRuntime --> Stack
-    RustRuntime --> HeapRust
+    %% Memory Management
+    CPPRuntime --> HeapCPP["C++ Heap"]
+    RustRuntime --> HeapRust["Rust Heap"]
     FFIBoundary -- "Memory ownership transfer" --> HeapCPP
     FFIBoundary -- "Memory ownership transfer" --> HeapRust
 ```
