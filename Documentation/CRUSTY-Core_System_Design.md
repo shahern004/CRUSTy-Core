@@ -22,6 +22,7 @@ The CRUSTY-Core architecture is built on two key principles:
 ```mermaid
 flowchart TD
     subgraph ARM["Single Binary on ARM Processor"]
+
         subgraph Rust["Rust Layer (Memory Safety)"]
             A["Command-line Input Handling"]
             B["Network Input                  "]
