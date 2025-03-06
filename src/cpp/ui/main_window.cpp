@@ -200,6 +200,7 @@ void MainWindow::setupUi()
     connect(m_decrypt.outputEdit, &QLineEdit::textChanged, this, &MainWindow::updateUiState);
     connect(m_decrypt.passwordEdit, &QLineEdit::textChanged, this, &MainWindow::updateUiState);
     connect(m_fileTreeView, &QTreeView::clicked, this, &MainWindow::onFileSelected);
+    connect(m_fileTreeView, &QTreeView::doubleClicked, this, &MainWindow::onFileDoubleClicked);
 }
 
 void MainWindow::setupToolBar()
@@ -342,12 +343,12 @@ QWidget* MainWindow::createFileBrowserPanel()
     upButton->setToolTip("Go Up One Level");
     upButton->setFixedSize(24, 24);
     
-    QLineEdit* pathEdit = new QLineEdit(this);
-    pathEdit->setReadOnly(true);
+    m_pathEdit = new QLineEdit(this);
+    m_pathEdit->setReadOnly(true);
     
     addressBarLayout->addWidget(addressLabel);
     addressBarLayout->addWidget(upButton);
-    addressBarLayout->addWidget(pathEdit, 1);
+    addressBarLayout->addWidget(m_pathEdit, 1);
     
     // Create a header for the file list
     QLabel* fileListHeader = new QLabel("Files", this);
@@ -359,13 +360,7 @@ QWidget* MainWindow::createFileBrowserPanel()
     layout->addWidget(m_fileTreeView);
     
     // Connect signals
-    connect(upButton, &QPushButton::clicked, [this, pathEdit]() {
-        QDir currentDir(pathEdit->text());
-        if (currentDir.cdUp()) {
-            pathEdit->setText(currentDir.absolutePath());
-            refreshFileList();
-        }
-    });
+    connect(upButton, &QPushButton::clicked, this, &MainWindow::navigateUp);
     
     // Initial file list
     refreshFileList();
@@ -611,7 +606,7 @@ void MainWindow::setupFileSelectors()
     auto decryptOutputBrowseButton = m_decrypt.outputEdit->parentWidget()->findChild<QPushButton*>();
     
     // Connect encrypt file browser
-    connect(encryptFileBrowseButton, &QPushButton::clicked, [this]() {
+    connect(encryptFileBrowseButton, &QPushButton::clicked, this, [this]() {
         QString filePath = QFileDialog::getOpenFileName(
             this, "Select File to Encrypt", QDir::homePath(), ALL_FILES_FILTER
         );
@@ -627,7 +622,7 @@ void MainWindow::setupFileSelectors()
     });
     
     // Connect encrypt output browser
-    connect(encryptOutputBrowseButton, &QPushButton::clicked, [this]() {
+    connect(encryptOutputBrowseButton, &QPushButton::clicked, this, [this]() {
         QString defaultPath = m_encrypt.outputEdit->text();
         if (defaultPath.isEmpty() && !m_encrypt.fileEdit->text().isEmpty()) {
             defaultPath = m_encrypt.fileEdit->text() + ENCRYPTED_EXTENSION;
@@ -645,7 +640,7 @@ void MainWindow::setupFileSelectors()
     });
     
     // Connect decrypt file browser
-    connect(decryptFileBrowseButton, &QPushButton::clicked, [this]() {
+    connect(decryptFileBrowseButton, &QPushButton::clicked, this, [this]() {
         QString filePath = QFileDialog::getOpenFileName(
             this, "Select File to Decrypt", QDir::homePath(),
             ENCRYPTED_FILES_FILTER
@@ -668,7 +663,7 @@ void MainWindow::setupFileSelectors()
     });
     
     // Connect decrypt output browser
-    connect(decryptOutputBrowseButton, &QPushButton::clicked, [this]() {
+    connect(decryptOutputBrowseButton, &QPushButton::clicked, this, [this]() {
         QString defaultPath = m_decrypt.outputEdit->text();
         if (defaultPath.isEmpty() && !m_decrypt.fileEdit->text().isEmpty()) {
             QString inputPath = m_decrypt.fileEdit->text();
@@ -690,3 +685,6 @@ void MainWindow::setupFileSelectors()
             m_decrypt.outputEdit->setText(filePath);
         }
     });
+}
+
+} // namespace crusty

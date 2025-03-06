@@ -56,8 +56,7 @@ void MainWindow::updateUiState()
         m_batch.fileModel->rowCount() > 0
     );
     
-    // Enable 2FA config button if 2FA is enabled
-    m_encrypt.twoFactorConfigButton->setEnabled(m_encrypt.twoFactorCheckBox->isChecked());
+    // Update UI state based on input fields
 }
 
 void MainWindow::showStatusMessage(const QString& message, bool isError)
@@ -114,7 +113,6 @@ void MainWindow::processCryptoOperation(
     const QString& sourcePath,
     const QString& destPath,
     const QString& password,
-    const QString& secondFactor,
     const QString& successMessage
 )
 {
@@ -142,7 +140,7 @@ void MainWindow::processCryptoOperation(
                 sourcePath.toStdString(),
                 destPath.toStdString(),
                 password.toStdString(),
-                secondFactor.toStdString(),
+                "", // No second factor
                 [this](float progress) {
                     // Update progress bar
                     QMetaObject::invokeMethod(m_progressBar, "setValue", Qt::QueuedConnection,
@@ -180,7 +178,6 @@ void MainWindow::encryptFile()
         m_encrypt.fileEdit->text(),
         m_encrypt.outputEdit->text(),
         m_encrypt.passwordEdit->text(),
-        m_encrypt.twoFactorCheckBox->isChecked() ? "2fa-enabled" : "",
         "File encrypted successfully"
     );
 }
@@ -197,7 +194,6 @@ void MainWindow::decryptFile()
         m_decrypt.fileEdit->text(),
         m_decrypt.outputEdit->text(),
         m_decrypt.passwordEdit->text(),
-        m_decrypt.secondFactorEdit->text(),
         "File decrypted successfully"
     );
 }
@@ -237,32 +233,33 @@ void MainWindow::openFile()
     }
 }
 
-void MainWindow::refreshFileList()
+void MainWindow::refreshFileList(const QString& directory)
 {
     // Clear current model
     m_fileModel->clear();
     m_fileModel->setHorizontalHeaderLabels({"Name", "Size", "Date", "Path"});
     
-    // Get current directory (default to home directory)
-    QString currentDir = QDir::homePath();
-    
-    // Find the path edit field in the address bar
-    QLineEdit* pathEdit = nullptr;
-    for (QObject* child : m_mainSplitter->findChildren<QLineEdit*>()) {
-        QLineEdit* lineEdit = qobject_cast<QLineEdit*>(child);
-        if (lineEdit && lineEdit->isReadOnly()) {
-            pathEdit = lineEdit;
-            break;
+    // If directory is provided, update current directory
+    if (!directory.isEmpty()) {
+        QFileInfo dirInfo(directory);
+        if (dirInfo.exists() && dirInfo.isDir()) {
+            m_currentDirectory = dirInfo.absoluteFilePath();
+        } else {
+            showStatusMessage("Invalid directory path: " + directory, true);
+            return;
         }
+    } else if (m_currentDirectory.isEmpty()) {
+        // Default to home directory if no current directory
+        m_currentDirectory = QDir::homePath();
     }
     
-    // Update path edit if found
-    if (pathEdit) {
-        pathEdit->setText(currentDir);
+    // Update path edit
+    if (m_pathEdit) {
+        m_pathEdit->setText(m_currentDirectory);
     }
     
     // Add files to model
-    QDir dir(currentDir);
+    QDir dir(m_currentDirectory);
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     
     for (const QFileInfo& fileInfo : fileInfoList) {
@@ -396,7 +393,7 @@ void MainWindow::onFileSelected(const QModelIndex& index)
         
         QPushButton* encryptButton = new QPushButton("Encrypt");
         encryptButton->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
-        connect(encryptButton, &QPushButton::clicked, [this, filePath]() {
+        connect(encryptButton, &QPushButton::clicked, this, [this, filePath]() {
             m_operationTabWidget->setCurrentIndex(0); // Switch to encrypt tab
             m_encrypt.fileEdit->setText(filePath);
             if (m_encrypt.outputEdit->text().isEmpty()) {
@@ -406,7 +403,7 @@ void MainWindow::onFileSelected(const QModelIndex& index)
         
         QPushButton* decryptButton = new QPushButton("Decrypt");
         decryptButton->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
-        connect(decryptButton, &QPushButton::clicked, [this, filePath]() {
+        connect(decryptButton, &QPushButton::clicked, this, [this, filePath]() {
             m_operationTabWidget->setCurrentIndex(1); // Switch to decrypt tab
             m_decrypt.fileEdit->setText(filePath);
             if (m_decrypt.outputEdit->text().isEmpty()) {
@@ -453,22 +450,7 @@ void MainWindow::showDeviceManagement()
     showStatusMessage("Device management not yet implemented", true);
 }
 
-void MainWindow::toggle2FA(bool enabled)
-{
-    m_encrypt.twoFactorConfigButton->setEnabled(enabled);
-    
-    if (enabled) {
-        showStatusMessage("Two-factor authentication enabled", false);
-    } else {
-        showStatusMessage("Two-factor authentication disabled", false);
-    }
-}
-
-void MainWindow::configure2FA()
-{
-    // Not yet implemented
-    showStatusMessage("2FA configuration not yet implemented", true);
-}
+// 2FA functions are not implemented in this version
 
 void MainWindow::showAbout()
 {
@@ -481,6 +463,55 @@ void MainWindow::showAbout()
         "<p>Built with Qt and Rust.</p>"
         "<p>&copy; 2025 CRUSTy Team</p>"
     );
+}
+
+
+void MainWindow::onFileDoubleClicked(const QModelIndex& index)
+{
+    // Get file path from the model
+    QModelIndex sourceIndex = m_fileSortModel->mapToSource(index);
+    QModelIndex pathIndex = m_fileModel->index(sourceIndex.row(), FILE_PATH_COLUMN);
+    QString filePath = m_fileModel->data(pathIndex).toString();
+    
+    // Get file info
+    QFileInfo fileInfo(filePath);
+    
+    // If it's a directory, navigate to it
+    if (fileInfo.isDir()) {
+        refreshFileList(filePath);
+    } else {
+        // If it's a file, handle based on current tab
+        int currentTab = m_operationTabWidget->currentIndex();
+        if (currentTab == 0) { // Encrypt tab
+            m_encrypt.fileEdit->setText(filePath);
+            if (m_encrypt.outputEdit->text().isEmpty()) {
+                m_encrypt.outputEdit->setText(filePath + ENCRYPTED_EXTENSION);
+            }
+        } else if (currentTab == 1) { // Decrypt tab
+            m_decrypt.fileEdit->setText(filePath);
+            if (m_decrypt.outputEdit->text().isEmpty()) {
+                QString outputPath = filePath;
+                if (outputPath.endsWith(ENCRYPTED_EXTENSION)) {
+                    outputPath.chop(strlen(ENCRYPTED_EXTENSION));
+                } else {
+                    outputPath += DECRYPTED_EXTENSION;
+                }
+                m_decrypt.outputEdit->setText(outputPath);
+            }
+        }
+    }
+}
+
+void MainWindow::navigateUp()
+{
+    if (m_currentDirectory.isEmpty()) {
+        return;
+    }
+    
+    QDir currentDir(m_currentDirectory);
+    if (currentDir.cdUp()) {
+        refreshFileList(currentDir.absolutePath());
+    }
 }
 
 } // namespace crusty

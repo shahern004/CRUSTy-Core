@@ -76,8 +76,10 @@ private slots:
     
     /**
      * @brief Refresh the file list
+     * 
+     * @param directory Optional directory to navigate to
      */
-    void refreshFileList();
+    void refreshFileList(const QString& directory = QString());
     
     /**
      * @brief Handle file selection in the file list
@@ -85,6 +87,18 @@ private slots:
      * @param index The selected index
      */
     void onFileSelected(const QModelIndex& index);
+    
+    /**
+     * @brief Handle double-click on a file or directory
+     * 
+     * @param index The double-clicked index
+     */
+    void onFileDoubleClicked(const QModelIndex& index);
+    
+    /**
+     * @brief Navigate up one directory level
+     */
+    void navigateUp();
     
     /**
      * @brief Show the settings dialog
@@ -211,6 +225,8 @@ private:
     QTabWidget* m_operationTabWidget;
     QStandardItemModel* m_fileModel;
     QSortFilterProxyModel* m_fileSortModel;
+    QString m_currentDirectory;  // Current directory being displayed
+    QLineEdit* m_pathEdit;       // Address bar path edit
     
     // UI elements - Toolbar
     QToolBar* m_toolBar;

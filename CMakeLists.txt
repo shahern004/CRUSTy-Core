@@ -25,8 +25,11 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Find Qt packages
-option(USE_QT "Enable Qt UI components" ON)
+option(USE_QT "Enable Qt UI components" OFF)  # Disable Qt by default
 if(USE_QT)
+    # Use MinGW-compatible Qt6 by default
+    set(Qt6_DIR "C:/msys64/mingw64/lib/cmake/Qt6")
+    
     find_package(Qt6 COMPONENTS Core Gui Widgets)
     if(NOT Qt6_FOUND)
         message(WARNING "Qt6 not found. Building without Qt UI components.")
@@ -39,7 +42,7 @@ include(FetchContent)
 FetchContent_Declare(
     corrosion
     GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
-    GIT_TAG v0.4
+    GIT_TAG v0.4.7
 )
 FetchContent_MakeAvailable(corrosion)
 
