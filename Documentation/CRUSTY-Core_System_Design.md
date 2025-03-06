@@ -51,36 +51,24 @@ graph TD
 
 CRUSTY-Core supports two deployment targets:
 
-```mermaid
-graph TD
-    %% PC Deployment
-    A1[Command-line Interface]
-    B1[Local File System]
-    C1[Local Encryption]
-    D1[Embedded Device Management]
-    
-    %% Embedded Deployment
-    A2[STM32H573I-DK Hardware]
-    B2[Hardware Acceleration]
-    C2[Host Communication]
-    D2[Embedded Encryption Service]
-    
-    %% Shared Components
-    E1[Rust Input Handling]
-    F1[C++ Crypto Core]
-    G1[Communication Protocol]
-    
-    %% Connections
-    A1 --> E1
-    E1 --> F1
-    F1 --> C1
-    D1 --> G1
-    
-    C2 --> E1
-    F1 --> B2
-    G1 --> C2
-    B2 --> D2
-```
+1. **PC Deployment**:
+   - Command-line interface for user interaction
+   - Local file system access for file operations
+   - Local encryption/decryption capabilities
+   - Embedded device management functionality
+
+2. **Embedded Deployment (STM32H573I-DK)**:
+   - Hardware-based implementation on STM32H573I-DK
+   - Hardware acceleration for cryptographic operations
+   - Host communication capabilities
+   - Embedded encryption service
+
+3. **Shared Components**:
+   - Rust input handling for memory safety
+   - C++ cryptographic core for performance
+   - Communication protocol for PC-embedded interaction
+
+The PC deployment uses the command-line interface to interact with the Rust input handling layer, which then communicates with the C++ cryptographic core for encryption operations. The embedded deployment leverages hardware acceleration while still using the same core cryptographic algorithms, with communication between the PC and embedded device handled through a secure protocol.
 
 ## 3. Component Details
 
@@ -305,11 +293,23 @@ sequenceDiagram
     participant PC
     participant Embedded
     
-    PC->>Embedded: Command Message
-    Note over PC,Embedded: Command ID, Parameters
+    PC->>Embedded: Command Message (CMD_ENCRYPT)
+    Note over PC,Embedded: Command ID: 0x0001, Parameters: file_data, key
     Embedded->>Embedded: Process Command
-    Embedded->>PC: Response Message
-    Note over PC,Embedded: Status, Result Data
+    Embedded->>PC: Response Message (RSP_ENCRYPT)
+    Note over PC,Embedded: Status: 0x00 (SUCCESS), Result: encrypted_data
+    
+    PC->>Embedded: Command Message (CMD_DECRYPT)
+    Note over PC,Embedded: Command ID: 0x0002, Parameters: encrypted_data, key
+    Embedded->>Embedded: Process Command
+    Embedded->>PC: Response Message (RSP_DECRYPT)
+    Note over PC,Embedded: Status: 0x00 (SUCCESS), Result: decrypted_data
+    
+    PC->>Embedded: Command Message (CMD_KEY_GEN)
+    Note over PC,Embedded: Command ID: 0x0003, Parameters: key_params
+    Embedded->>Embedded: Process Command
+    Embedded->>PC: Response Message (RSP_KEY_GEN)
+    Note over PC,Embedded: Status: 0x00 (SUCCESS), Result: key_handle
 ```
 
 ### 6.2 Message Format
@@ -330,12 +330,15 @@ Commands are processed through a pipeline that ensures security at each step:
 
 ```mermaid
 graph LR
-    A[Receive Message] --> B[Validate Format]
-    B --> C[Parse Command]
-    C --> D[Validate Parameters]
-    D --> E[Execute Command]
-    E --> F[Format Response]
-    F --> G[Send Response]
+    A[Receive Message<br>receiveData(buffer, len)] --> B[Validate Format<br>validateMessageFormat(buffer)]
+    B --> C[Parse Command<br>cmd = parseCommand(buffer)]
+    C --> D[Validate Parameters<br>validateParams(cmd.params)]
+    D --> E[Execute Command<br>result = executeCommand(cmd)]
+    E --> F[Format Response<br>resp = formatResponse(result)]
+    F --> G[Send Response<br>sendResponse(resp)]
+    
+    classDef code fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    class A,B,C,D,E,F,G code;
 ```
 
 ## 7. Build System
@@ -495,14 +498,17 @@ Large files are processed in chunks to manage memory usage:
 
 ```mermaid
 graph TD
-    A[Input File] --> B[Split into Chunks]
-    B --> C[Process Chunk 1]
-    B --> D[Process Chunk 2]
-    B --> E[Process Chunk N]
-    C --> F[Combine Results]
+    A[Input File] --> B[Split into Chunks<br>chunk_size = 1MB]
+    B --> C[Process Chunk 1<br>encryptChunk(chunk1, key)]
+    B --> D[Process Chunk 2<br>encryptChunk(chunk2, key)]
+    B --> E[Process Chunk N<br>encryptChunk(chunkN, key)]
+    C --> F[Combine Results<br>combineEncryptedChunks()]
     D --> F
     E --> F
-    F --> G[Output File]
+    F --> G[Output File<br>writeEncryptedFile()]
+    
+    classDef code fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    class B,C,D,E,F,G code;
 ```
 
 ### 9.2 Hardware Acceleration
@@ -558,15 +564,18 @@ Users can choose between local and embedded encryption:
 
 ```mermaid
 graph TD
-    A[User Specifies File] --> B[Choose Encryption Mode]
-    B --> C[Local Encryption]
-    B --> D[Embedded Encryption]
-    C --> E[Process Locally]
-    D --> F[Select Device]
-    F --> G[Send to Device]
-    G --> H[Process on Device]
-    E --> I[Save Encrypted File]
+    A[User Specifies File<br>--input file.txt] --> B[Choose Encryption Mode<br>--mode local|embedded]
+    B --> C[Local Encryption<br>mode = EncryptionMode::Local]
+    B --> D[Embedded Encryption<br>mode = EncryptionMode::Embedded]
+    C --> E[Process Locally<br>encryptor.encryptFile(file, key)]
+    D --> F[Select Device<br>device = findDevice(deviceId)]
+    F --> G[Send to Device<br>device.sendCommand(CMD_ENCRYPT)]
+    G --> H[Process on Device<br>device.waitForResponse()]
+    E --> I[Save Encrypted File<br>writeToFile(encryptedData)]
     H --> I
+    
+    classDef code fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    class A,B,C,D,E,F,G,H,I code;
 ```
 
 ### 10.3 Embedded Installation
