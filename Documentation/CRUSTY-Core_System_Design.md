@@ -789,11 +789,7 @@ This approach significantly enhances security by ensuring that all untrusted inp
 
 ### 12.4 Core Process Flows
 
-<div style="display: flex;">
-<div style="flex: 1;">
-
 #### Encryption Process Flow
-
 ```mermaid
 flowchart TD
     %% Vertical flow of encryption process
@@ -817,11 +813,7 @@ flowchart TD
     class E ffi;
 ```
 
-</div>
-<div style="flex: 1;">
-
 #### Device Communication Flow
-
 ```mermaid
 flowchart TD
     %% Vertical flow of embedded device communication
@@ -843,9 +835,6 @@ flowchart TD
     class E,F,G,H device;
     class D,I comm;
 ```
-
-</div>
-</div>
 
 These flow charts illustrate two key processes in the CRUSTY-Core system:
 
