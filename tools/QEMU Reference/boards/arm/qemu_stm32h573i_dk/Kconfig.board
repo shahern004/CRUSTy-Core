@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_QEMU_STM32H573I_DK
+	bool "QEMU Emulation for STM32H573I-DK"
+	select QEMU_TARGET
+	select CPU_CORTEX_M33
+	select CPU_HAS_FPU
+	select CPU_HAS_FPU_DOUBLE_PRECISION
+	select SOC_SERIES_MPS2
+	select BOARD_MPS2_AN500

@@ -1,0 +1,30 @@
+# QEMU configuration for STM32H573I-DK (Cortex-M7)
+
+# Enable FPU
+CONFIG_FPU=y
+CONFIG_FP_HARDABI=y
+
+# Memory configuration
+CONFIG_SRAM_SIZE=1024
+CONFIG_FLASH_SIZE=2048
+
+# QEMU specific settings
+CONFIG_QEMU_ICOUNT=n
+
+# STM32H573I-DK specific settings
+CONFIG_CLOCK_CONTROL=y
+CONFIG_SERIAL=y
+CONFIG_CONSOLE=y
+CONFIG_UART_CONSOLE=y
+CONFIG_GPIO=y
+
+# Ensure Cortex-M7 is properly configured
+CONFIG_CPU_CORTEX_M7=y
+CONFIG_ARMV7_M_ARMV8_M_MAINLINE=y
+
+# Enable logging
+CONFIG_LOG=y
+CONFIG_LOG_MODE_MINIMAL=y
+
+# QEMU emulation settings
+CONFIG_BOARD_QEMU_EMULATION=y

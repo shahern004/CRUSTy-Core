@@ -54,7 +54,7 @@ We need to create a CMake toolchain file for the STM32H573I-DK target. This file
 I need to create a CMake toolchain file for the STM32H573I-DK target. This file should:
 1. Set the system name to Generic and processor to ARM
 2. Specify arm-none-eabi-gcc as the cross compiler
-3. Set appropriate CPU flags for Cortex-M7 (-mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16)
+3. Set appropriate CPU flags for Cortex-M33 (-mcpu=cortex-m33 -mthumb -mfloat-abi=hard -mfpu=fpv5-sp-d16)
 4. Configure compiler flags for embedded development (function sections, data sections, no exceptions)
 5. Set up linker flags for embedded target
 6. Configure the root filesystem for cross-compilation
@@ -70,18 +70,18 @@ I need to test if our ARM toolchain configuration works correctly. Please:
 2. Add a basic "Hello World" C++ file that would compile for the STM32H573I-DK
 3. Configure the project with the toolchain file
 4. Build the project and verify it compiles without errors
-5. Check that the output is an ELF file suitable for the ARM Cortex-M7 target
+5. Check that the output is an ELF file suitable for the ARM Cortex-M33 target
 ```
 
 ### 1.2 Rust Configuration for Embedded Target
 
 **Description:**
-We need to update the Rust crypto library's configuration to support the ARM Cortex-M7 target. This involves modifying the Cargo.toml file to add appropriate features and dependencies for embedded development.
+We need to update the Rust crypto library's configuration to support the ARM Cortex-M33 target. This involves modifying the Cargo.toml file to add appropriate features and dependencies for embedded development.
 
 **Development Prompt:**
 
 ```
-I need to update our Rust crypto library to support the STM32H573I-DK's ARM Cortex-M7 processor. Please modify rust/crypto/Cargo.toml to:
+I need to update our Rust crypto library to support the STM32H573I-DK's ARM Cortex-M33 processor. Please modify rust/crypto/Cargo.toml to:
 1. Add feature flags for conditional compilation (std vs embedded)
 2. Configure dependencies to work without the standard library when needed
 3. Add embedded-specific dependencies like cortex-m, cortex-m-rt, and stm32h5

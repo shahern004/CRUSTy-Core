@@ -115,6 +115,7 @@ CRUSTy-Core/
 ### Building and Testing
 
 1. **Incremental Builds**: After making changes, rebuild the project:
+
    ```bash
    cd build
    cmake --build .
@@ -135,6 +136,7 @@ CRUSTy-Core/
 ### Code Style and Linting
 
 - **C++ Code**: Follow the project's C++ style guide (based on Google C++ Style Guide)
+
   - Use `clang-format` with the provided `.clang-format` file
 
 - **Rust Code**: Follow Rust's official style guidelines
@@ -144,6 +146,7 @@ CRUSTy-Core/
 ### Debugging
 
 1. **Debugging the Application**:
+
    - Use Visual Studio Code's debugger with the C/C++ extension
    - Use GDB or LLDB from the command line
    - Use Qt Creator's debugger for UI components
@@ -166,26 +169,113 @@ When modifying the Rust cryptographic functions:
 
 For STM32H573I-DK embedded development:
 
-1. Install the required toolchain:
-   - ARM GCC Toolchain
-   - STM32CubeProgrammer
-   - OpenOCD
+### Required Tools for Embedded Development
 
-2. Configure CMake for embedded target:
+1. **CMake** (4.0 or higher):
+
+   - Download from [CMake's website](https://cmake.org/download/)
+   - Select the Windows x64 Installer (cmake-x.x.x-windows-x86_64.msi)
+   - During installation, select "Add CMake to the system PATH for all users"
+
+2. **ARM GNU Toolchain**:
+
+   - Download from [ARM's website](https://developer.arm.com/downloads/-/gnu-rm)
+   - Select the Windows AArch32 bare-metal target (arm-none-eabi) installer
+   - During installation, check "Add path to environment variable"
+
+3. **MSYS2 and MinGW**:
+
+   - Download from [MSYS2's website](https://www.msys2.org/)
+   - Run the installer and use the default installation location (C:\msys64)
+   - After installation, open the MSYS2 terminal and run:
+     ```
+     pacman -Syu
+     ```
+   - After the terminal closes, reopen it and run:
+     ```
+     pacman -Syu
+     pacman -S --needed base-devel mingw-w64-x86_64-toolchain
+     ```
+
+4. **Ninja Build System**:
+
+   - In the MSYS2 terminal, run:
+     ```
+     pacman -S mingw-w64-x86_64-ninja
+     ```
+
+5. **Add to PATH**:
+
+   - Add MinGW and Ninja to your system PATH:
+     - Open Windows Settings
+     - Search for "Environment Variables"
+     - Edit the system environment variables
+     - Add `C:\msys64\mingw64\bin` to the PATH
+
+6. **STM32CubeProgrammer**:
+
+   - Download from [ST's website](https://www.st.com/en/development-tools/stm32cubeprog.html)
+   - Install with default options
+
+7. **OpenOCD** (Optional):
+   - Install via MSYS2:
+     ```
+     pacman -S mingw-w64-x86_64-openocd
+     ```
+
+### Building for STM32H573I-DK
+
+1. Configure CMake for embedded target:
+
    ```bash
-   cmake .. -DBUILD_EMBEDDED_TARGET=ON -DCMAKE_TOOLCHAIN_FILE=../cmake/arm-none-eabi.cmake
+   cmake -S . -B build -DBUILD_EMBEDDED_TARGET=ON -DCMAKE_TOOLCHAIN_FILE=cmake/arm-none-eabi.cmake -G "Ninja"
    ```
 
-3. Build the embedded firmware:
+2. Build the embedded firmware:
+
    ```bash
-   cmake --build . --target crusty_embedded
+   cmake --build build --target crusty_embedded
    ```
 
-4. Flash the firmware using STM32CubeProgrammer or OpenOCD
+3. The output ELF file will be in the build directory, along with a .bin file for flashing
+
+4. Flash the firmware using STM32CubeProgrammer:
+   ```bash
+   STM32_Programmer_CLI -c port=SWD -w build/crusty_embedded.bin 0x08000000 -v -rst
+   ```
+
+### Verifying the ARM Toolchain
+
+To verify that the ARM toolchain is correctly configured:
+
+1. Create a simple test project:
+
+   ```bash
+   mkdir arm_test && cd arm_test
+   ```
+
+2. Create a basic main.cpp file with LED blinking functionality
+
+3. Configure and build with CMake:
+
+   ```bash
+   cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=../cmake/arm-none-eabi.cmake -G "Ninja"
+   cmake --build build
+   ```
+
+4. Verify the output is an ELF file suitable for ARM Cortex-M7:
+   ```bash
+   arm-none-eabi-readelf -h build/arm_test
+   ```
+
+## QEMU Emulation
+
+For development and testing without physical hardware, you can use QEMU to emulate the STM32H573I-DK. See the [QEMU Guide](Embedded/QEMU_GUIDE.md) for detailed instructions on setting up and using QEMU for STM32H573I-DK emulation.
 
 ## Submitting Changes
 
 1. Create a new branch for your feature or bugfix:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -193,6 +283,7 @@ For STM32H573I-DK embedded development:
 2. Make your changes and commit them with clear, descriptive commit messages
 
 3. Push your branch to GitHub:
+
    ```bash
    git push origin feature/your-feature-name
    ```

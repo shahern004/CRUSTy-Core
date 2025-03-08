@@ -1,0 +1,20 @@
+identifier: qemu_stm32h573i_dk
+name: QEMU Emulation for STM32H573I-DK (Cortex-M33)
+type: qemu
+arch: arm
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+ram: 640
+flash: 2048
+supported:
+  - gpio
+  - uart
+  - i2c
+  - spi
+testing:
+  default: true
+  ignore_tags:
+    - net
+    - bluetooth

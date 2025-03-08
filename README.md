@@ -10,10 +10,14 @@ Secure file encryption application using AES-256-GCM with a hybrid C++/Rust arch
 
 ## Documentation
 
-- [Developer Setup](Documentation/Guides/DEVELOPER_SETUP.md) - Environment setup
-- [API Reference](Documentation/Guides/API_REFERENCE.md) - API documentation
-- [QEMU Emulation](Documentation/QEMU_Unified_Guide.md) - STM32H573I-DK emulation
-- [Embedded Development](Documentation/Embedded_Unified_Guide.md) - STM32H573I-DK integration
+- [Developer Setup](Documentation/DEVELOPER_SETUP.md) - Environment setup
+- [System Design](Documentation/Core/SYSTEM_DESIGN.md) - Architecture and design
+- [API Reference](Documentation/Core/API_REFERENCE.md) - API documentation
+- [Embedded Guide](Documentation/Embedded/EMBEDDED_GUIDE.md) - STM32H573I-DK integration
+- [QEMU Guide](Documentation/Embedded/QEMU_GUIDE.md) - STM32H573I-DK emulation
+- [STM32H573I Reference](Documentation/Embedded/STM32H573I_REFERENCE.md) - Hardware reference
+
+See the [Documentation README](Documentation/README.md) for a complete list of documentation.
 
 ## Features
 
@@ -28,7 +32,7 @@ Secure file encryption application using AES-256-GCM with a hybrid C++/Rust arch
 
 - Rust for memory-safe cryptographic operations
 - Secure memory handling with automatic wiping
-- [Detailed security documentation](Documentation/Security/SECURITY_IMPLEMENTATION.md)
+- [Detailed security documentation](Documentation/Core/SYSTEM_DESIGN.md#8-security-considerations)
 
 ## License
 

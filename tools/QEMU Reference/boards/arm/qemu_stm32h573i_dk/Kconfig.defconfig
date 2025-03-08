@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_QEMU_STM32H573I_DK
+
+config BOARD
+	default "qemu_stm32h573i_dk"
+
+config SYS_CLOCK_HW_CYCLES_PER_SEC
+	default 25000000
+
+config CONSOLE
+	default y
+
+config UART_CONSOLE
+	default y
+
+config SERIAL
+	default y
+
+config GPIO
+	default y
+
+# QEMU machine configuration
+config QEMU_TARGET
+	default y
+
+# Ensure Cortex-M7 is properly configured
+config CPU_CORTEX_M7
+	default y
+
+config CPU_HAS_FPU
+	default y
+
+config CPU_HAS_FPU_DOUBLE_PRECISION
+	default y
+
+endif # BOARD_QEMU_STM32H573I_DK
