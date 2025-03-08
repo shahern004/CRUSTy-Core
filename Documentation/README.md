@@ -18,19 +18,11 @@ Central documentation index for the CRUSTy-Core project. The documentation has b
 - [QEMU Guide](Embedded/QEMU_GUIDE.md) - STM32H573I-DK emulation
 - [STM32H573I Reference](Embedded/STM32H573I_REFERENCE.md) - Hardware reference
 
-## Development Guidelines
-
-- [Coding Guidelines](Coding%20Guidelines/coding-preferences.md) - Code style and practices
-- [Workflow Preferences](Coding%20Guidelines/workflow-prefs.md) - Development workflow
-- [Communication Guidelines](Coding%20Guidelines/communication.md) - Team communication
-- [Technology Stack](Coding%20Guidelines/my-stack.md) - Core technologies
 
 ## Progress Tracking
 
 - [Changelog](Dev%20Progress/changelog.md) - Development history
 - [Todo List](Dev%20Progress/todo.md) - Pending tasks
-- [Current Context](Dev%20Progress/context-summary.md) - Current development focus
-- [NSA Secure Coding Practices](Dev%20Progress/NSA_Secure_Coding_Practices.md) - Security guidelines
 
 ## Documentation Status
 
