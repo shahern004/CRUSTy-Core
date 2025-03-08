@@ -7,17 +7,8 @@ Welcome to the CRUSTy-Core documentation. This index provides a centralized over
 - [Development Setup](Guides/DEVELOPER_SETUP.md) - Setup your development environment
 - [API Reference](Guides/API_REFERENCE.md) - Comprehensive API documentation
 - [System Design](Features/CRUSTY-Core_System_Design.md) - Overall system architecture
-- [Current Development Context](Dev%20Progress/context-summary.md) - Current development focus
-- [Technology Stack](Coding%20Guidelines/my-stack.md) - Core technologies used in the project
 
 ## Documentation by Purpose
-
-### Getting Started
-
-- [Developer Setup Guide](Guides/DEVELOPER_SETUP.md) - Setting up your development environment
-- [Coding Preferences](Coding%20Guidelines/coding-preferences.md) - Core development principles
-- [Workflow Preferences](Coding%20Guidelines/workflow-prefs.md) - Development workflow guidelines
-- [Communication Guidelines](Coding%20Guidelines/communication.md) - Guidelines for effective communication
 
 ### System Architecture
 
