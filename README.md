@@ -1,12 +1,9 @@
 # CRUSTy-Core - A Secure File Encryption Application
 
-CRUSTy-Core is a robust, secure file encryption application that implements AES-256-GCM authenticated encryption with a focus on security, usability, and extensibility. This repository contains the hybrid C++/Rust implementation, which combines:
+CRUSTy-Core is a file encryption application that implements AES-256-GCM authenticated encryption with a focus on security, usability, and extensibility. This repository contains the hybrid C++/Rust implementation, which combines:
 
-- A modern Qt-based user interface (C++)
 - Core application logic in C++
 - Security-critical cryptographic operations in Rust
-
-It provides a comprehensive solution for protecting sensitive data through strong cryptographic primitives while maintaining a user-friendly interface.
 
 ## Quick Start
 
@@ -21,7 +18,6 @@ For detailed installation and usage instructions, please see the [Usage Guide](D
 ## Features
 
 - **Strong Encryption**: Uses AES-256-GCM for secure, authenticated encryption
-- **Modern User Interface**: Sleek and intuitive GUI built with Qt 6
 - **Flexible Operation Modes**:
   - Single file encryption/decryption
   - Batch processing for multiple files
@@ -31,7 +27,7 @@ For detailed installation and usage instructions, please see the [Usage Guide](D
   - Load keys from files
 - **Progress Tracking**: Real-time progress indicators for encryption/decryption operations
 - **Operation Logging**: Detailed logs of all encryption and decryption operations
-- **Error Handling**: Clear error messages and prevention of corrupted output files
+- **Error Handling**: Error messages and prevention of corrupted output files
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 
 ## Security Considerations
@@ -44,7 +40,7 @@ For detailed installation and usage instructions, please see the [Usage Guide](D
 
 ## NSA Secure Coding Practices
 
-CRUSTy-Core implements secure coding practices aligned with the NSA Cybersecurity Information Sheet on Software Memory Safety:
+CRUSTy-Core implements secure coding practices aligned with NSA Guidelines:
 
 - **Memory Safety Implementation**
   - Use of Rust for security-critical cryptographic operations
