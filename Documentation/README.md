@@ -29,7 +29,6 @@ Welcome to the CRUSTy-Core documentation. This index provides a centralized over
 
 - [Embedded Integration](Features/EMBEDDED_INTEGRATION.md) - Embedded architecture overview
 - [STM32H573I-DK Migration Roadmap](Dev%20Progress/STM32H573I-DK_Migration_Roadmap.md) - Migration plan
-- [STM32H573I Hardware Reference](STM32H573I.docx) - Hardware reference documentation
 
 ### QEMU Emulation
 
@@ -41,7 +40,6 @@ Welcome to the CRUSTy-Core documentation. This index provides a centralized over
 - [Current Context](Dev%20Progress/context-summary.md) - Current development focus
 - [Changelog](Dev%20Progress/changelog.md) - Record of changes and updates
 - [Todo List](Dev%20Progress/todo.md) - Pending tasks and features
-- [NSA Secure Coding Practices](Dev%20Progress/NSA_Secure_Coding_Practices.md) - Security guidelines
 
 ## Documentation Templates
 
@@ -54,8 +52,6 @@ When starting a new development task, refer to the appropriate template below to
 Key documentation:
 
 - [QEMU Integration](Features/QEMU_Integration.md)
-- [QEMU Emulation Guide](Guides/QEMU_EMULATION.md)
-- [Current Context](Dev%20Progress/context-summary.md)
 
 #### Embedded Development
 
@@ -71,14 +67,12 @@ Key documentation:
 
 - [System Design Document](Features/CRUSTY-Core_System_Design.md) (Cryptography sections)
 - [API Reference](Guides/API_REFERENCE.md) (Cryptographic Functions)
-- [NSA Secure Coding Practices](Dev%20Progress/NSA_Secure_Coding_Practices.md)
 
 #### Build System
 
 Key documentation:
 
 - [Developer Setup Guide](Guides/DEVELOPER_SETUP.md) (Build System sections)
-- [Technology Stack](Coding%20Guidelines/my-stack.md)
 
 ## Documentation Status
 
@@ -88,4 +82,3 @@ Key documentation:
 | [QEMU Integration](Features/QEMU_Integration.md)                                     | March 7, 2025 | Being consolidated |
 | [QEMU Emulation Guide](Guides/QEMU_EMULATION.md)                                     | March 7, 2025 | Being consolidated |
 | [STM32H573I-DK Migration Roadmap](Dev%20Progress/STM32H573I-DK_Migration_Roadmap.md) | March 7, 2025 | Current            |
-| [Current Context](Dev%20Progress/context-summary.md)                                 | March 7, 2025 | Current            |
