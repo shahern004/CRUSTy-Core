@@ -10,11 +10,6 @@ This index provides a centralized overview of all documentation resources.
 
 ## Documentation by Purpose
 
-### Embedded Development
-
-- [Embedded Integration](Features/EMBEDDED_INTEGRATION.md) - Embedded architecture overview
-- [STM32H573I-DK Migration Roadmap](Dev%20Progress/STM32H573I-DK_Migration_Roadmap.md) - Migration plan
-
 ### QEMU Emulation
 
 - [QEMU Integration](Features/QEMU_Integration.md) - QEMU integration architecture
