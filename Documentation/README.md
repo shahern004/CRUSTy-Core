@@ -1,6 +1,6 @@
 # CRUSTy-Core Documentation
 
-Welcome to the CRUSTy-Core documentation. This index provides a centralized overview of all documentation resources organized by purpose rather than location.
+This index provides a centralized overview of all documentation resources.
 
 ## Quick Links
 
@@ -10,12 +10,6 @@ Welcome to the CRUSTy-Core documentation. This index provides a centralized over
 
 ## Documentation by Purpose
 
-### System Architecture
-
-- [System Design Document](Features/CRUSTY-Core_System_Design.md) - Comprehensive system architecture
-- [Technology Stack](Coding%20Guidelines/my-stack.md) - Core technologies used in the project
-- [API Reference](Guides/API_REFERENCE.md) - Detailed API documentation
-
 ### Embedded Development
 
 - [Embedded Integration](Features/EMBEDDED_INTEGRATION.md) - Embedded architecture overview
@@ -24,24 +18,7 @@ Welcome to the CRUSTy-Core documentation. This index provides a centralized over
 ### QEMU Emulation
 
 - [QEMU Integration](Features/QEMU_Integration.md) - QEMU integration architecture
-- [QEMU Emulation Guide](Guides/QEMU_EMULATION.md) - Setting up and using QEMU emulation
-
-### Development Tracking
-
-- [Current Context](Dev%20Progress/context-summary.md) - Current development focus
-- [Changelog](Dev%20Progress/changelog.md) - Record of changes and updates
-- [Todo List](Dev%20Progress/todo.md) - Pending tasks and features
-
-## Documentation Templates
-
-### Development Context Templates
-
-When starting a new development task, refer to the appropriate template below to ensure you have all the necessary context:
-
-#### QEMU Development
-
-Key documentation:
-
+- [QEMU Emulation Guide](Guides/QEMU_EMULATION.md) - Setting up and using 
 - [QEMU Integration](Features/QEMU_Integration.md)
 
 #### Embedded Development
