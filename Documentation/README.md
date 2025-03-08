@@ -1,38 +1,43 @@
 # CRUSTy-Core Documentation
 
-This index provides a centralized overview of all documentation resources.
+Central documentation index for the CRUSTy-Core project.
 
-## Quick Links
+## Core Documentation
 
-- [Development Setup](Guides/DEVELOPER_SETUP.md) - Setup your development environment
-- [API Reference](Guides/API_REFERENCE.md) - Comprehensive API documentation
+- [Developer Setup](Guides/DEVELOPER_SETUP.md) - Environment setup
+- [API Reference](Guides/API_REFERENCE.md) - API documentation
+- [QEMU Emulation](QEMU_Unified_Guide.md) - STM32H573I-DK emulation
+- [Embedded Development](Embedded_Unified_Guide.md) - STM32H573I-DK integration
 
-## Documentation by Purpose
+## By Category
 
-### QEMU Emulation
+### Development
 
-- [QEMU Integration](Features/QEMU_Integration.md) - QEMU integration architecture
-- [QEMU Emulation Guide](Guides/QEMU_EMULATION.md) - Setting up and using 
-- [QEMU Integration](Features/QEMU_Integration.md)
+- [Coding Guidelines](Coding%20Guidelines/coding-preferences.md) - Code style and practices
+- [Workflow Preferences](Coding%20Guidelines/workflow-prefs.md) - Development workflow
+- [Communication Guidelines](Coding%20Guidelines/communication.md) - Team communication
 
-#### Embedded Development
+### Architecture
 
-Key documentation:
+- [System Design](Features/CRUSTY-Core_System_Design.md) - System architecture
+- [Technology Stack](Coding%20Guidelines/my-stack.md) - Core technologies
 
-- [Embedded Integration](Features/EMBEDDED_INTEGRATION.md)
-- [STM32H573I-DK Migration Roadmap](Dev%20Progress/STM32H573I-DK_Migration_Roadmap.md)
+### Progress Tracking
 
-#### Build System
+- [Changelog](Dev%20Progress/changelog.md) - Development history
+- [Todo List](Dev%20Progress/todo.md) - Pending tasks
+- [Current Context](Dev%20Progress/context-summary.md) - Current development focus
 
-Key documentation:
+### Security
 
-- [Developer Setup Guide](Guides/DEVELOPER_SETUP.md) (Build System sections)
+- [Security Implementation](Security/SECURITY_IMPLEMENTATION.md) - Detailed security implementation
+- [NSA Secure Coding Practices](Dev%20Progress/NSA_Secure_Coding_Practices.md) - Security guidelines
 
 ## Documentation Status
 
-| Document                                                                             | Last Updated  | Status             |
-| ------------------------------------------------------------------------------------ | ------------- | ------------------ |
-| [System Design](Features/CRUSTY-Core_System_Design.md)                               | March 6, 2025 | Current            |
-| [QEMU Integration](Features/QEMU_Integration.md)                                     | March 7, 2025 | Being consolidated |
-| [QEMU Emulation Guide](Guides/QEMU_EMULATION.md)                                     | March 7, 2025 | Being consolidated |
-| [STM32H573I-DK Migration Roadmap](Dev%20Progress/STM32H573I-DK_Migration_Roadmap.md) | March 7, 2025 | Current            |
+| Document                                                       | Last Updated  | Status  |
+| -------------------------------------------------------------- | ------------- | ------- |
+| [System Design](Features/CRUSTY-Core_System_Design.md)         | March 6, 2025 | Current |
+| [QEMU Emulation](QEMU_Unified_Guide.md)                        | March 7, 2025 | Current |
+| [Embedded Development](Embedded_Unified_Guide.md)              | March 7, 2025 | Current |
+| [Security Implementation](Security/SECURITY_IMPLEMENTATION.md) | March 8, 2025 | Current |
