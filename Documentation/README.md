@@ -6,7 +6,6 @@ This index provides a centralized overview of all documentation resources.
 
 - [Development Setup](Guides/DEVELOPER_SETUP.md) - Setup your development environment
 - [API Reference](Guides/API_REFERENCE.md) - Comprehensive API documentation
-- [System Design](Features/CRUSTY-Core_System_Design.md) - Overall system architecture
 
 ## Documentation by Purpose
 
@@ -22,14 +21,6 @@ Key documentation:
 
 - [Embedded Integration](Features/EMBEDDED_INTEGRATION.md)
 - [STM32H573I-DK Migration Roadmap](Dev%20Progress/STM32H573I-DK_Migration_Roadmap.md)
-- [STM32H573I Hardware Reference](STM32H573I.docx)
-
-#### Cryptography Implementation
-
-Key documentation:
-
-- [System Design Document](Features/CRUSTY-Core_System_Design.md) (Cryptography sections)
-- [API Reference](Guides/API_REFERENCE.md) (Cryptographic Functions)
 
 #### Build System
 
