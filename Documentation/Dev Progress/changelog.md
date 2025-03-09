@@ -2,6 +2,44 @@
 
 ## 2025-03-08 (Latest)
 
+- Integrated Zephyr STM32 HAL for hardware abstraction
+
+  - Moved Zephyr base from external location to tools/zephyr for self-contained repository
+  - Updated build scripts to use local Zephyr base
+  - Configured CMakeLists.txt to include STM32 HAL headers
+  - Enhanced main.c with STM32 HAL integration for direct hardware access
+  - Added SystemClock_Config for STM32H573I-DK
+  - Created prj.conf with STM32 HAL configuration options
+  - Test results: Successfully integrated Zephyr STM32 HAL into the project
+
+- Cleaned up custom HAL implementation files
+
+  - Removed custom HAL source files and headers from tools/QEMU Reference/src/hal
+  - Removed HAL test file from tools/QEMU Reference/src/tests
+  - Updated main.c to use Zephyr's native HAL APIs directly
+  - Updated CMakeLists.txt to remove references to custom HAL files
+  - Removed custom HAL documentation (HARDWARE_ABSTRACTION_LAYER.md)
+  - Test results: Successfully cleaned up all custom HAL files and updated code to use Zephyr's native HAL
+
+- Changed approach to Hardware Abstraction Layer implementation
+
+  - Decided to leverage existing Zephyr STM32 HAL instead of custom implementation
+  - Will adapt to Zephyr conventions for API design
+  - Will use Zephyr's native mechanisms for environment detection
+  - Updated project documentation to reflect the new approach:
+    - Updated context-summary.md with new integration plan
+    - Updated todo.md with new tasks for Zephyr HAL integration
+  - Test results: Successfully identified Zephyr STM32 HAL assets and created integration plan
+
+- Designed and implemented Hardware Abstraction Layer (HAL) for STM32H573I-DK
+
+  - Created comprehensive HAL architecture with layered design
+  - Implemented hardware-agnostic interfaces for GPIO and UART peripherals
+  - Developed runtime detection mechanism for QEMU vs real hardware environments
+  - Created detailed API documentation with usage examples
+  - Implemented robust error handling and logging capabilities
+  - Test results: Created design document and implementation files, pending build system integration
+
 - Improved terminal output visibility and script organization
   - Created dedicated "logs" folder in QEMU Reference directory for consistent log file storage
   - Consolidated multiple QEMU scripts into two simplified scripts:

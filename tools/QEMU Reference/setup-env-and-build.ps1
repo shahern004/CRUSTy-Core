@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Simple script for building and running STM32H573I-DK applications in QEMU with logging.
+    Sets up the Zephyr environment and builds/runs the application.
 
 .DESCRIPTION
-    This script provides a simplified interface for building and running QEMU applications
-    with built-in logging to ensure output is captured for visibility.
+    This script sets up the Zephyr environment variables, builds the application,
+    and optionally runs it in QEMU.
 
 .PARAMETER BuildOnly
     If specified, only builds the application without running it.
@@ -17,15 +17,15 @@
 
 .EXAMPLE
     # Build and run (default behavior)
-    .\simple-qemu.ps1
+    .\setup-env-and-build.ps1
     
 .EXAMPLE
     # Only build the application
-    .\simple-qemu.ps1 -BuildOnly
+    .\setup-env-and-build.ps1 -BuildOnly
     
 .EXAMPLE
     # Only run an existing binary
-    .\simple-qemu.ps1 -RunOnly -BinaryPath "build\zephyr\zephyr.elf"
+    .\setup-env-and-build.ps1 -RunOnly -BinaryPath "build\zephyr\zephyr.elf"
 #>
 
 param (
@@ -63,6 +63,13 @@ function Log {
     $Message | Out-File -FilePath $LogFile -Append -Encoding utf8
 }
 
+# Zephyr SDK configuration - Use the path from .env file
+$ZephyrSdkPath = $env:ZEPHYR_SDK_INSTALL_DIR
+if (-not $ZephyrSdkPath) {
+    $ZephyrSdkPath = "C:\zephyr-sdk-0.17.0"
+    Log "ZEPHYR_SDK_INSTALL_DIR not found in environment, using default: $ZephyrSdkPath" "Yellow"
+}
+
 # Load environment variables from .env file if it exists
 $EnvFile = Join-Path $AppDir ".env"
 if (Test-Path $EnvFile) {
@@ -78,21 +85,12 @@ if (Test-Path $EnvFile) {
     }
 }
 
-# Verify Zephyr environment
+# Use ZEPHYR_BASE from environment (should be set from .env file)
 $ZephyrBase = $env:ZEPHYR_BASE
 if (-not $ZephyrBase) {
     $ZephyrBase = Join-Path $PSScriptRoot "..\..\tools\zephyr\zephyr"
-    [System.Environment]::SetEnvironmentVariable("ZEPHYR_BASE", $ZephyrBase, "Process")
     Log "ZEPHYR_BASE not found in environment, using default: $ZephyrBase" "Yellow"
 }
-
-if (-not (Test-Path $ZephyrBase)) {
-    Log "Zephyr base not found at: $ZephyrBase" "Red"
-    Log "Please check the ZEPHYR_BASE path in the .env file." "Red"
-    exit 1
-}
-
-Log "Using Zephyr base: $ZephyrBase" "Green"
 
 # Function to run a command and log output
 function RunCommand {
@@ -117,7 +115,35 @@ function RunCommand {
     }
 }
 
-# Function to build the application
+# Function to set up Zephyr environment
+function SetupZephyrEnvironment {
+    Log "Setting up Zephyr environment..." "Cyan"
+    
+    # Check if Zephyr SDK exists
+    if (-not (Test-Path $ZephyrSdkPath)) {
+        Log "Zephyr SDK not found at: $ZephyrSdkPath" "Red"
+        return $false
+    }
+    
+    # Check if Zephyr base exists
+    if (-not (Test-Path $ZephyrBase)) {
+        Log "Zephyr base not found at: $ZephyrBase" "Red"
+        Log "Please adjust the ZephyrBase variable in the script." "Red"
+        return $false
+    }
+    
+    # Set environment variables
+    $env:ZEPHYR_SDK_INSTALL_DIR = $ZephyrSdkPath
+    $env:ZEPHYR_BASE = $ZephyrBase
+    
+    Log "Zephyr environment set up successfully." "Green"
+    Log "ZEPHYR_SDK_INSTALL_DIR: $env:ZEPHYR_SDK_INSTALL_DIR" "Green"
+    Log "ZEPHYR_BASE: $env:ZEPHYR_BASE" "Green"
+    
+    return $true
+}
+
+# Function to build the application using CMake directly
 function BuildApp {
     Log "Building application..." "Cyan"
     
@@ -130,12 +156,24 @@ function BuildApp {
     # Create build directory
     New-Item -Path (Join-Path $AppDir "build") -ItemType Directory -Force | Out-Null
     
-    # Build command - use the same configuration as setup-env-and-build.ps1
-    $buildCmd = "west build -b stm32h573i_dk --pristine -- -DCONF_FILE=prj.conf -DQEMU=1"
+    # Change to build directory
+    Push-Location (Join-Path $AppDir "build")
     
-    # Run build in the app directory
-    Push-Location $AppDir
+    # Run CMake with the correct board configuration
+    # Use stm32h573i_dk board with QEMU emulation
+    $cmakeCmd = "cmake -DBOARD=stm32h573i_dk -DCONF_FILE=prj.conf -DQEMU=1 .."
+    $result = RunCommand -Command $cmakeCmd -Description "Running CMake"
+    
+    if (-not $result) {
+        Pop-Location
+        return $false
+    }
+    
+    # Build the application
+    $buildCmd = "cmake --build ."
     $result = RunCommand -Command $buildCmd -Description "Building application"
+    
+    # Return to original directory
     Pop-Location
     
     if ($result) {
@@ -180,8 +218,15 @@ function RunQemu {
 }
 
 # Main execution logic
-Log "Starting QEMU tool at $(Get-Date)" "Cyan"
+Log "Starting environment setup and build at $(Get-Date)" "Cyan"
 Log "Log file: $LogFile" "Cyan"
+
+# Set up Zephyr environment
+$envSetup = SetupZephyrEnvironment
+if (-not $envSetup) {
+    Log "Failed to set up Zephyr environment. Exiting." "Red"
+    exit 1
+}
 
 $success = $true
 

@@ -24,8 +24,8 @@ config GPIO
 config QEMU_TARGET
 	default y
 
-# Ensure Cortex-M33 is properly configured
-config CPU_CORTEX_M33
+# Ensure Cortex-M7 is properly configured
+config CPU_CORTEX_M7
 	default y
 
 config CPU_HAS_FPU
