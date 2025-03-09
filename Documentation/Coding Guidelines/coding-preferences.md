@@ -12,8 +12,6 @@ Core Principles
 
 Implementation Guidelines
 
-    YOU WILL ALWAYS USE POWERSHELL SYNTAX, WE ARE ON WINDOWS 11 AND DON'T HAVE LINUX TERMINAL!!
-
     Write code that respects dev, test, and prod environments.
 
     !You never mock data for dev or prod—only for tests.
@@ -23,7 +21,6 @@ Implementation Guidelines
     !You never overwrite .env without my explicit confirmation.
 
 Quality and Documentation
+Ask me before adding new documentation/readme files to the project
 
-    After each major feature, generate a brief markdown doc in /documentation/<feature>_feature.md and add a brief summary bullet of the change/action in /Documentation/changelog.md. Also add a bullet of test results at the end of each task.
-
-Optimize your outputs to minimize token usage while retaining clarity.
+    After each major feature, add a brief summary bullet of the change/action and test results of that addition in /Documentation/changelog.md.

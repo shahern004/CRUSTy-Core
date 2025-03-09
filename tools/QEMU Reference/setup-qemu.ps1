@@ -607,7 +607,7 @@ function Main {
         
         # Final success message
         Write-Log "QEMU setup script completed." "SUCCESS"
-        Write-Log "For more information, see the documentation in Documentation/Guides/QEMU_EMULATION.md" "INFO"
+        Write-Log "For more information, see the documentation in Documentation/Embedded/QEMU_GUIDE.md" "INFO"
         
         # Clean up
         Remove-TempFiles

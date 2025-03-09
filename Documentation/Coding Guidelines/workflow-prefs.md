@@ -1,21 +1,9 @@
-Task Execution
-
-    Focus only on code relevant to the task; !you never touch unrelated code.
-
-    Break complex tasks into logical stages; pause and ask for confirmation before next step.
-
-    For simple, low-risk tasks, implement fully; for complex tasks, use review checkpoints.
-
 Planning and Progress
 
-    Before major features, generate a timestamped entry in /Documentation/plan.md with steps and wait for my approval.
-
-    After each task is complete, update todo.md for progress. Then, clear /Documentation/Coding Guidelines/context-summary.md contents and update with the next task for development. This serves as a prompt to help you get started on the next task in what you believe is the most effective prompt possible.
-
-    If context exceeds 130k tokens, timestamp and summarize prior work into /Documentation/Coding Guidelines/context-summary.md and restart chat.
+    After each task is complete, update todo.md for progress made. Then, clear /Documentation/Coding Guidelines/context-summary.md contents. Update context-summary.md with prompts to help you start the next task. Write using concise prompt prose only using verbiage that helps you start work on a fresh task. context-summary.md is not meant for users or developers, its only to give the most concise information possible to help claude start his next task with no context.
 
 Testing and Feedback
 
-    Write thorough tests for all major functionality; suggest edge case tests.
+    Test every addition to the codebase. Never close a task that you made new coded features or scripts in without testing it
 
     Be responsive to my feedback—adjust granularity (more/less checkpoints) as I prefer.

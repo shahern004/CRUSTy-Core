@@ -4,38 +4,51 @@ Tools and reference files for STM32H573I-DK QEMU emulation.
 
 ## Contents
 
-- **QEMU Reference/** - Reference implementation for STM32H573I-DK emulation
-- **run-qemu.ps1** - Script for building and running in QEMU
+- **QEMU Reference/** - Self-contained reference implementation for STM32H573I-DK emulation
+  - Contains all necessary files for QEMU emulation of the STM32H573I-DK board
+  - Includes build configuration, board definitions, and run scripts
+  - Works directly from the repository without external dependencies (except Zephyr SDK)
 
-## Quick Start
+## Quick Start: Organic QEMU Approach
 
-```powershell
-cd C:\zephyr-workspace\stm32h573i_dk_app
-.\run-qemu.ps1
-```
-
-## Debugging
+We've implemented a simplified "organic" approach to QEMU emulation that avoids complex path manipulation and provides more reliable operation.
 
 ```powershell
-.\run-qemu.ps1 -Debug
+# Navigate to the QEMU Reference directory
+cd tools\QEMU Reference
+
+# Build and run in one step
+.\run-qemu-direct.ps1
+
+# Or build and run separately
+.\build-app.ps1
+.\run-qemu-only.ps1 -BinaryPath "build\zephyr\zephyr.elf"
 ```
 
-Connect with GDB:
+## Features
 
-```
-arm-none-eabi-gdb build/zephyr/zephyr.elf
-(gdb) target remote localhost:1234
-(gdb) continue
-```
+- **Self-contained** - All necessary files are included in the repository
+- **Simplified approach** - Direct QEMU commands without complex path manipulation
+- **Separated concerns** - Build and run processes can be performed separately
+- **Debugging support** - Includes GDB server integration
+- **Clean build option** - Start fresh with `-Clean` parameter
 
-## Configuration Files
+## Zephyr SDK Configuration
 
-- `prj.conf` - Main project configuration
-- `boards/qemu_cortex_m33.conf` - QEMU Cortex-M33 configuration
-- `boards/stm32h573i_dk.overlay` - Device tree overlay
+The scripts require the Zephyr SDK. You can specify the Zephyr SDK directory in one of these ways:
+
+1. Set the ZEPHYR_BASE environment variable
+2. Create a `.env` file in the QEMU Reference directory with the following content:
+   ```
+   ZEPHYR_BASE=C:/path/to/zephyr
+   ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+   ZEPHYR_SDK_INSTALL_DIR=C:/path/to/zephyr-sdk
+   ```
 
 ## Implementation Notes
 
-- Uses mps2-an500 machine for Cortex-M33 emulation
+- Uses mps2-an385 machine for Cortex-M3 emulation
 - Limited peripheral emulation
-- See [QEMU Unified Guide](../Documentation/QEMU_Unified_Guide.md) for details
+- Avoids issues with spaces in paths
+- See [QEMU Guide](../Documentation/Embedded/QEMU_GUIDE.md) for detailed documentation
+- See [QEMU Reference README](QEMU%20Reference/README.md) for detailed usage instructions
