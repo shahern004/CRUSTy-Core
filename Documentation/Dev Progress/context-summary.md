@@ -1,89 +1,66 @@
-# Next Task: Documentation Streamlining and QEMU Emulation Enhancement
+# Next Task: Hardware Abstraction Layer Implementation
 
-## Task Context (3/7/2025)
+## Task Context (3/8/2025)
 
-### Documentation Streamlining
+### QEMU Emulation Enhancement Progress
 
-We've successfully streamlined the project documentation to enhance workflow and provide better context:
+We've made significant progress in enhancing the STM32H573I-DK QEMU emulation. After implementing the organic QEMU approach, resolving CPU configuration discrepancies, and improving terminal output visibility, we now have a consistent and reliable environment for QEMU emulation:
 
-- Created a central Documentation/README.md that serves as a unified documentation index
-- Consolidated QEMU documentation into a comprehensive QEMU_Unified_Guide.md
-- Created a unified Embedded_Unified_Guide.md that combines STM32H573I-DK migration and embedded integration information
-- Implemented development context templates for different types of tasks
-- Added documentation status tracking to improve visibility
-
-The new documentation structure provides:
-
-- Better organization by purpose rather than location
-- Reduced redundancy across multiple documents
-- Enhanced context for development tasks
-- Improved onboarding for new developers
-- Clearer relationships between different documentation components
-
-### QEMU Emulation Enhancement
-
-We've successfully configured Zephyr QEMU for emulating the STM32H573I-DK application. After encountering several challenges with CPU compatibility, we've implemented a working solution:
-
-- Initially attempted to use the STM32H573I-DK board configuration with QEMU, but encountered issues with CPU_CORTEX_M7 and CPU_CORTEX_M33 configurations
-- Discovered that the installed QEMU version has limited support for Cortex-M CPUs (only Cortex-M3 for mps2-an385 and Cortex-M7 for other machines)
-- Changed approach to use the qemu_cortex_m3 board target, which is specifically designed for QEMU emulation
-- Successfully built and ran the application in QEMU using this approach
+- Successfully standardized CPU configuration to consistently use Cortex-M33 across all configuration files and scripts
+- Consolidated multiple QEMU scripts into two simplified scripts with built-in logging:
+  - `simple-qemu.ps1`: Comprehensive script for QEMU operations
+  - `hardware-tool.ps1`: Placeholder script for future hardware operations
+- Created a dedicated "logs" folder for consistent log file storage
+- Fixed issues with terminal output visibility in Act mode
+- Implemented robust error handling and logging in all scripts
 
 The current configuration includes:
 
 - A basic Zephyr application that can run in QEMU
-- PowerShell script (run-qemu.ps1) for building and running the application
-- Configuration to use the qemu_cortex_m3 board target with the mps2-an385 machine
+- Simplified PowerShell scripts for building and running the application
+- Consistent configuration using the stm32h573i_dk board target with the mps2-an500 machine
+- Proper support for the Cortex-M33 CPU used in the actual STM32H573I-DK hardware
+- Reliable logging to ensure output is visible to tools like Cline Claude
 
-After analyzing the current implementation, we've identified several areas for improvement and created a detailed plan to enhance the STM32H573I-DK QEMU emulation.
+With Phase 1 (CPU Configuration Standardization) completed and the terminal output visibility issues resolved, we're now ready to move on to Phase 2: Hardware Abstraction Layer implementation.
 
-## Development Plan
+## Next Development Phase: Hardware Abstraction Layer
 
-### Documentation Maintenance
+The Hardware Abstraction Layer (HAL) will provide a consistent API for accessing hardware peripherals across both QEMU and real hardware environments. This will enable developers to write code that works seamlessly in both environments without requiring significant changes.
 
-- Continue to update the unified documentation as the project evolves
-- Ensure new features and components are properly documented
-- Maintain the documentation index to reflect the current state of the project
-- Update development context templates as needed
+### Key Objectives
 
-### QEMU Emulation Enhancement
+1. Create a dedicated HAL module with hardware-agnostic API
+2. Implement abstractions for GPIO, UART, and other peripherals
+3. Support both QEMU and real hardware through the same interface
+4. Add runtime detection capabilities where possible
 
-We will enhance the STM32H573I-DK QEMU emulation through the following phases:
+### Implementation Plan
 
-#### Phase 1: CPU Configuration Standardization
+1. **Create HAL Header Files**:
 
-- Resolve CPU configuration discrepancies between Kconfig.board (CPU_CORTEX_M33) and Kconfig.defconfig (CPU_CORTEX_M7)
-- Update board.cmake to use the appropriate CPU type
-- Update run-qemu.ps1 to use the correct machine for the selected CPU
+   - Define hardware-agnostic interfaces for GPIO, UART, and other peripherals
+   - Create clear abstraction boundaries between application code and hardware-specific code
+   - Design API that works consistently across both environments
 
-#### Phase 2: Hardware Abstraction Layer
+2. **Implement QEMU-Specific HAL**:
 
-- Create a dedicated HAL module with hardware-agnostic API
-- Implement abstractions for GPIO, UART, and other peripherals
-- Support both QEMU and real hardware through the same interface
-- Add runtime detection capabilities where possible
+   - Create implementations of the HAL interfaces for the QEMU environment
+   - Use Zephyr's device drivers and APIs to access simulated hardware
+   - Add QEMU-specific optimizations and workarounds
 
-#### Phase 3: Application Enhancement
+3. **Implement STM32H573I-DK-Specific HAL**:
 
-- Improve console output with detailed logging and visual indicators
-- Enhance LED functionality with sophisticated patterns and visual feedback
-- Add button input simulation in QEMU
-- Implement timer-based demonstrations to showcase functionality
+   - Create implementations of the HAL interfaces for the real hardware
+   - Use STM32CubeH5 HAL or Zephyr's STM32 drivers to access hardware
+   - Ensure compatibility with the QEMU implementation
 
-#### Phase 4: Dual-Target Build System
+4. **Add Runtime Detection**:
+   - Implement mechanisms to detect the current environment (QEMU vs real hardware)
+   - Create factory functions to instantiate the appropriate HAL implementation
+   - Add fallback mechanisms for unsupported features
 
-- Enhance the build system for better dual-target support
-- Improve conditional compilation structure
-- Update run-qemu.ps1 with support for enhanced features
-- Create helper scripts for building and testing
-
-#### Phase 5: Documentation
-
-- Document architecture differences between Cortex-M3 and Cortex-M33
-- Create a peripheral compatibility chart
-- Provide comprehensive testing guidance
-
-## Implementation Considerations
+### Implementation Considerations
 
 - Focus on creating a consistent API that works across both environments
 - Use conditional compilation (#ifdef QEMU) only when absolutely necessary
@@ -92,19 +69,49 @@ We will enhance the STM32H573I-DK QEMU emulation through the following phases:
 - Ensure all functionality is thoroughly tested in both environments
 - Document any limitations or differences clearly
 
-## Testing Strategy
+### Testing Strategy
 
-1. For each phase:
+1. Develop unit tests for each HAL interface
+2. Test each implementation (QEMU and real hardware) separately
+3. Verify that the same application code works correctly in both environments
+4. Document any discrepancies or limitations
 
-   - Implement the changes incrementally
-   - Test in QEMU before proceeding
-   - Verify on real hardware when possible
-   - Document any discrepancies or issues
+This Hardware Abstraction Layer will provide the foundation for the subsequent phases of the QEMU emulation enhancement, enabling more sophisticated application features and ensuring consistent behavior across environments.
 
-2. Final validation:
-   - Run comprehensive tests in both environments
-   - Compare behavior and performance
-   - Verify that the same application works correctly in both environments
-   - Document any remaining limitations or differences
+## Previous Improvements
 
-This enhancement will provide a robust development and testing environment for the STM32H573I-DK, allowing for faster development cycles and more thorough testing without requiring physical hardware for every test.
+### Script Consolidation and Logging Improvements (3/8/2025)
+
+We consolidated multiple QEMU scripts into two simplified scripts with built-in logging:
+
+1. **Created new simplified scripts**:
+
+   - `simple-qemu.ps1`: Comprehensive script for QEMU operations with built-in logging
+   - `hardware-tool.ps1`: Placeholder script for future hardware operations with consistent interface
+
+2. **Key improvements**:
+   - Created dedicated "logs" folder for consistent log file storage
+   - Fixed issues with terminal output visibility in Act mode
+   - Implemented robust error handling and logging in all scripts
+   - Standardized parameter naming to avoid conflicts
+   - Simplified the overall workflow for QEMU operations
+
+### Terminal Output Visibility Workaround (3/8/2025)
+
+We implemented several workarounds to address the issue of terminal outputs not being properly captured and forwarded to Claude:
+
+1. **Command Wrapper Script**:
+
+   - Created `tools/command-wrapper.ps1` to execute commands and capture their output to files
+
+2. **Enhanced Logging**:
+
+   - Implemented direct file logging in all scripts
+   - Created timestamped log files for each operation
+   - Ensured all command output is captured and stored
+
+3. **Best Practices Documentation**:
+   - Created comprehensive documentation in `Documentation/Dev Progress/terminal-output-workaround.md`
+   - Documented best practices for working with Cline to avoid terminal output visibility issues
+
+These improvements have established a solid foundation for the ongoing enhancement of the STM32H573I-DK QEMU emulation, enabling more reliable development and testing workflows.

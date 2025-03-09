@@ -1,5 +1,47 @@
 # CRUSTy-Core Development Changelog
 
+## 2025-03-08 (Latest)
+
+- Improved terminal output visibility and script organization
+  - Created dedicated "logs" folder in QEMU Reference directory for consistent log file storage
+  - Consolidated multiple QEMU scripts into two simplified scripts:
+    - `simple-qemu.ps1`: Comprehensive script for QEMU operations with built-in logging
+    - `hardware-tool.ps1`: Placeholder script for future hardware operations with consistent interface
+  - Fixed issues with terminal output visibility in Act mode
+  - Implemented robust error handling and logging in all scripts
+  - Standardized parameter naming to avoid conflicts
+  - Test results: Successfully created and verified log file creation and output capture
+
+## 2025-03-08
+
+- Standardized CPU configuration for STM32H573I-DK QEMU emulation
+
+  - Updated Kconfig.defconfig to consistently use CPU_CORTEX_M33 instead of CPU_CORTEX_M7
+  - Updated board.cmake to use cortex-m33 CPU type
+  - Updated all QEMU scripts to use cortex-m33 CPU and mps2-an500 machine
+  - Fixed board target name from qemu_stm32h573i_dk to stm32h573i_dk
+  - Ensured consistent configuration across all build and run scripts
+  - Test results: Successfully built and ran the application with the corrected configuration
+
+- Implemented terminal output visibility workaround for Cline
+
+  - Created `tools/command-wrapper.ps1` to capture command output to files
+  - Developed enhanced logging versions of QEMU scripts (`build-app-with-logging.ps1` and `run-qemu-only-with-logging.ps1`)
+  - Added comprehensive documentation in `Documentation/Dev Progress/terminal-output-workaround.md`
+  - Implemented best practices for ensuring command output visibility in Cline
+  - Test results: Successfully demonstrated workarounds for terminal output visibility issues in Cline
+
+- Implemented organic QEMU approach for STM32H573I-DK emulation
+  - Created simplified scripts for better reliability and maintainability
+  - Developed `build-app.ps1` for focused application building
+  - Created `run-qemu-only.ps1` for running existing binaries in QEMU
+  - Implemented `run-qemu-direct.ps1` for combined build and run functionality
+  - Fixed path issues with spaces in repository path
+  - Resolved CONF_FILE parameter issues by properly quoting parameters
+  - Updated documentation with detailed usage instructions and examples
+  - Added direct QEMU command examples for manual execution
+  - Test results: Scripts successfully build and run the application in QEMU without path-related issues
+
 ## 2025-03-07
 
 - Streamlined project documentation structure

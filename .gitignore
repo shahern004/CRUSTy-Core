@@ -52,3 +52,10 @@ Cargo.lock
 Thumbs.db
 NSA_Coding_Practices.md
 BSAFSS.md
+
+# Logs and temporary files
+**/logs/
+tools/QEMU Reference/logs/
+
+# Documentation
+Documentation/Coding Guidelines/
