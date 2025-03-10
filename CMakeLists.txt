@@ -38,26 +38,15 @@ if(USE_QT)
 endif()
 
 # Set up Corrosion for Rust integration
-include(FetchContent)
-FetchContent_Declare(
-    corrosion
-    GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
-    GIT_TAG v0.4.7
-)
-FetchContent_MakeAvailable(corrosion)
+# Use the local copy of Corrosion instead of fetching from Git
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/corrosion/corrosion-0.4.7")
+find_package(Corrosion REQUIRED)
 
-# Add Rust crypto library
-corrosion_import_crate(MANIFEST_PATH rust/crypto/Cargo.toml)
+# Add Rust crypto library with the "std" feature enabled
+corrosion_import_crate(MANIFEST_PATH rust/crypto/Cargo.toml FEATURES "std")
 
-# Link Windows libraries for Rust crypto
-if(MINGW)
-    target_link_libraries(rust_crypto INTERFACE 
-        ws2_32 
-        bcrypt 
-        ntdll 
-        userenv
-    )
-endif()
+# We won't try to modify the Rust library target directly
+# Instead, we'll handle the dependencies when linking the final executable
 
 # C++ components
 add_library(cpp_components
@@ -133,10 +122,30 @@ if(USE_QT)
 else()
     # Simple CLI application without Qt
     add_executable(crusty_cli src/cpp/main.cpp)
-    target_link_libraries(crusty_cli PRIVATE 
-        cpp_components 
-        rust_crypto
-    )
+    
+    # For MSVC, we need special handling of the Rust libraries
+    if(MSVC)
+        target_link_libraries(crusty_cli PRIVATE 
+            cpp_components
+        )
+        # Link directly with the generated Rust static library file
+        # This avoids the problematic default lib flags
+        target_link_libraries(crusty_cli PRIVATE
+            "${CMAKE_CURRENT_BINARY_DIR}/rust_crypto.lib"
+            msvcrt
+            kernel32
+            advapi32
+            ntdll
+            userenv
+            ws2_32
+            dbghelp
+        )
+    else()
+        target_link_libraries(crusty_cli PRIVATE 
+            cpp_components 
+            rust_crypto
+        )
+    endif()
     target_compile_definitions(crusty_cli PRIVATE NO_QT_UI)
 
     # Install rules for CLI application

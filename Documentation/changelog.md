@@ -1,5 +1,15 @@
 # CRUSTy-Core Changelog
 
+## 2025-03-10
+
+- Fixed build system issues after directory cleanup
+  - Added missing `hash_password` declaration to Rust FFI interface
+  - Resolved linking issues with the Rust crypto library
+  - Created custom build script (`build-msvc.ps1`) for MSVC builds
+  - Implemented local Corrosion integration to avoid Git-related errors
+  - Fixed cbindgen header generation with proper namespaces and C++ types
+  - Created comprehensive manual header fallback in case cbindgen fails
+
 This file documents all significant changes to the CRUSTy-Core project.
 
 ## 2025-03-10
@@ -60,4 +70,3 @@ This file documents all significant changes to the CRUSTy-Core project.
   - Hardware-accelerated AES-GCM encryption/decryption with software fallback
   - Hardware-accelerated random number generation with software fallback
   - Software SHA-256 implementation (hardware not available on this platform)
-  - Comprehensive crypto operations demo with performance benchmarking
