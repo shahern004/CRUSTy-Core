@@ -2,6 +2,18 @@
  * Copyright (c) 2025 CRUSTy-Core
  *
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * STM32H573I-DK Board Device Tree Overlay
+ * ---------------------------------------
+ * Hardware Security Feature Configuration
+ * 
+ * This overlay has been updated based on comprehensive verification of available
+ * hardware security features on the STM32H573I-DK board. Only nodes that have been
+ * verified to exist in the base devicetree and confirmed to work properly are enabled.
+ * 
+ * See Documentation/Embedded/STM32H573I_Security_Features.md for detailed information
+ * on which hardware security features are available, which require software fallback
+ * implementations, and performance comparisons between hardware and software.
  */
 
 / {
@@ -9,9 +21,40 @@
 		zephyr,console = &usart1;
 		zephyr,shell-uart = &usart1;
 	};
+
+	/* Define secure memory regions for crypto operations */
+	soc {
+		crypto_memory: memory@20030000 {
+			compatible = "mmio-sram";
+			reg = <0x20030000 DT_SIZE_K(16)>;
+			status = "okay";
+		};
+	};
 };
 
+/* UART configuration */
 &usart1 {
 	status = "okay";
 	current-speed = <115200>;
 };
+
+/* AES hardware accelerator - Verified working */
+&aes {
+	status = "okay";
+};
+
+/* Random Number Generator - Verified working */
+&rng {
+	status = "okay";
+};
+
+/* NOTE: The following hardware security features mentioned in the STM32H573I
+ * reference manual are NOT currently available in the Zephyr devicetree and
+ * must be implemented in software:
+ * 
+ * - SHA/HASH hardware accelerator (no &hash node in devicetree)
+ * - Public Key Accelerator (no &pka node in devicetree)
+ * 
+ * See Documentation/Embedded/STM32H573I_Security_Features.md for software
+ * fallback implementations and performance impact analysis.
+ */

@@ -1,0 +1,49 @@
+/*
+ * Copyright (c) 2025 CRUSTy-Core
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* This file contains device tree overlays specific to QEMU emulation */
+
+/* Make sure LEDs are available in QEMU */
+/ {
+	aliases {
+		led0 = &red_led;
+		led1 = &green_led;
+		led2 = &blue_led;
+		sw0 = &user_button;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		red_led: led_0 {
+			gpios = <&gpioa 2 GPIO_ACTIVE_HIGH>;
+			label = "User LED1 (Red)";
+		};
+		green_led: led_1 {
+			gpios = <&gpioa 3 GPIO_ACTIVE_HIGH>;
+			label = "User LED2 (Green)";
+		};
+		blue_led: led_2 {
+			gpios = <&gpioa 4 GPIO_ACTIVE_HIGH>;
+			label = "User LED3 (Blue)";
+		};
+	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		user_button: button {
+			label = "User";
+			gpios = <&gpioc 13 GPIO_ACTIVE_HIGH>;
+		};
+	};
+};
+
+/* Make sure UART is configured for QEMU */
+&usart1 {
+	pinctrl-0 = <&usart1_tx_pa9 &usart1_rx_pa10>;
+	pinctrl-names = "default";
+	current-speed = <115200>;
+	status = "okay";
+};
