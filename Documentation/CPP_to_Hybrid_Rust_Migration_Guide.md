@@ -16,22 +16,8 @@ A helpful Rust dual-implementation resource is The Embedded Rust Book at: https:
 
 ## Pre-Migration Planning
 
-### 1. System Component Analysis
 
-Before starting the migration, thoroughly analyze your existing C++ system:
-
-1. **Component Mapping**: Document all major components, their responsibilities, and dependencies
-2. **Risk Assessment**: Identify components with:
-   - Highest memory safety concerns
-   - Most critical security requirements
-   - Performance-critical sections
-   - Complex dependency chains
-3. **Migration Prioritization**: Create a prioritized list of components for migration, considering:
-   - Security benefit from Rust's memory safety
-   - Isolation level (components with fewer dependencies are easier to migrate)
-   - Business criticality (less critical components are safer for initial migration attempts)
-
-### 2. FFI Strategy
+### 1. FFI Strategy
 
 Determine how your Rust and C++ components will communicate:
 
@@ -47,17 +33,12 @@ Determine how your Rust and C++ components will communicate:
    - Document lifetime guarantees and restrictions
    - Establish buffer management protocols
 
-### 3. Create a Build System Integration Plan
+### 2. Create a Build System Integration Plan
 
-1. **Development Environment Setup**:
+   **Development Environment Setup**:
    - Install Rust toolchain alongside C++ toolchain
    - Configure IDE support for both languages
    - Create build scripts that handle both languages
-2. **Continuous Integration Planning**:
-   - Update CI pipelines to build and test both languages
-   - Establish automated integration testing across language boundaries
-3. **Documentation**:
-   - Document build procedures for the hybrid system
 
 ## Phased Migration Approach
 
@@ -85,7 +66,7 @@ Determine how your Rust and C++ components will communicate:
 1. **Pilot Component Selection**:
 
    - Choose a non-critical, relatively isolated component
-   - Ideally select functionality where Rust's strengths (memory safety, concurrency) provide clear benefits
+   - Ideally select functionality around Rust's strengths (memory safety, concurrency)
    - Ensure the component has well-defined interfaces
 
 2. **Shadow Implementation**:
@@ -94,32 +75,12 @@ Determine how your Rust and C++ components will communicate:
    - Create FFI bindings that follow your established patterns
    - Maintain both implementations during the transition period
 
-3. **Testing Strategy**:
-
-   - Create comprehensive tests for both implementations
-   - Implement A/B testing capabilities to compare outputs
-   - Configure logging for performance comparison
-
-4. **Controlled Deployment**:
-   - Implement feature toggles to control which implementation is used
-   - Deploy with the ability to quickly rollback if issues arise
-
 ### Phase 3: Expand Migration Scope
 
-1. **Incremental Component Migration**:
-
-   - Based on lessons learned, select the next set of components
-   - Prioritize components that interact with already-migrated parts
-
-2. **Interface Refinement**:
+   **Interface Refinement**:
 
    - Refine FFI boundaries
    - Optimize data transfer between languages
-
-3. **Progressive Testing Expansion**:
-
-   - Expand test coverage across language boundaries
-   - Implement performance benchmarking
 
 ### Phase 4: Critical System Migration
 
@@ -128,44 +89,14 @@ Determine how your Rust and C++ components will communicate:
    - Comprehensive monitoring before migration
    - Create rollback plans
 
-2. **Gradual Replacement Strategy**:
-
-   - Maintain backward compatibility throughout the process
-   - Implement thorough integration testing at each step
-
-3. **Performance Optimization**:
+2. **Performance Optimization**:
 
    - Profile the hybrid system to identify bottlenecks
    - Optimize FFI boundary crossings
    - Consider redesigning data structures for better cross-language efficiency
 
-4. **User Impact Monitoring**:
-   - Implement detailed telemetry for user-facing changes
-   - Establish clear metrics for migration success
-
 ## Migration Patterns and Best Practices
 
-### The Strangler Pattern
-
-1. **Create Facade**:
-
-   - Implement a facade over the existing C++ component
-   - Ensure all access goes through this facade
-
-2. **Implement in Rust**:
-
-   - Create the Rust implementation of the component
-   - Expose it through your FFI boundary
-
-3. **Gradual Transition**:
-
-   - Incrementally route requests from the facade to the Rust implementation
-   - Use feature flags to control the routing
-   - Monitor and compare results during the transition
-
-4. **Complete Replacement**:
-   - Once stable, remove the old C++ implementation
-   - Simplify the facade or replace it entirely with direct Rust calls
 
 ### Parallel Implementation Pattern
 
@@ -226,34 +157,10 @@ Implement feature toggles to control the migration process:
    - Verify error propagation works as expected
    - Test edge cases and malformed inputs
 
-2. **Parity Testing**:
-
-   - Create tests that verify both implementations produce identical results
-   - Include performance benchmarks in automated tests
-   - Test with production-like data volumes
-
-3. **Fault Injection**:
+2. **Fault Injection**:
    - Test how errors in Rust components affect the broader C++ system
    - Verify that resource cleanup works properly across language boundaries
    - Test recovery mechanisms under failure conditions
-
-### Performance Benchmarking
-
-1. **Baseline Establishment**:
-
-   - Establish performance baselines for C++ components before migration
-   - Document expected performance characteristics
-
-2. **Comparative Analysis**:
-
-   - Compare performance between C++ and Rust implementations
-   - Analyze FFI overhead
-   - Identify optimization opportunities
-
-3. **Load Testing**:
-   - Perform load testing on hybrid system
-   - Verify performance under peak conditions
-   - Test memory usage patterns during sustained load
 
 ### Security Testing
 
