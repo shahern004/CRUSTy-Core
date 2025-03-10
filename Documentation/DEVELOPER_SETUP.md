@@ -16,8 +16,6 @@ Before you begin, ensure you have the following installed:
   - Linux: GCC 9+ or Clang 10+
 - **Rust** (1.56 or higher): For cryptographic components
   - Install using [rustup](https://rustup.rs/)
-- **Qt 6**: For the GUI components
-  - Download from [Qt's website](https://www.qt.io/download) or use package manager
 
 ### Optional Tools
 
@@ -25,8 +23,6 @@ Before you begin, ensure you have the following installed:
   - C/C++ extension
   - Rust-analyzer
   - CMake Tools
-- **CLion**: Alternative IDE with good C++ and Rust support
-- **Valgrind**: For memory leak detection (Linux/macOS)
 - **Doxygen**: For generating documentation
 
 ## Setting Up the Development Environment
@@ -216,12 +212,6 @@ For STM32H573I-DK embedded development:
 
    - Download from [ST's website](https://www.st.com/en/development-tools/stm32cubeprog.html)
    - Install with default options
-
-7. **OpenOCD** (Optional):
-   - Install via MSYS2:
-     ```
-     pacman -S mingw-w64-x86_64-openocd
-     ```
 
 ### Building for STM32H573I-DK
 
