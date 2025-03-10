@@ -2,7 +2,9 @@
 
 ## Introduction
 
-This guide provides a structured approach to integrate Rust into an existing C++ codebase within a single binary. Rather than a complete rewrite, this guide focuses on incremental migration while maintaining system stability and performance.
+This guide provides a structured approach to integrate Rust into an existing C++ codebase within a single binary. Rather than a complete rewrite, this guide focuses on incremental migration while maintaining system stability and performance. 
+
+A helpful Rust dual-implementation resource is The Embedded Rust Book at: https://docs.rust-embedded.org
 
 ## Why Consider a Hybrid Architecture?
 
@@ -56,7 +58,6 @@ Determine how your Rust and C++ components will communicate:
    - Establish automated integration testing across language boundaries
 3. **Documentation**:
    - Document build procedures for the hybrid system
-   - Create onboarding guides for developers new to either language
 
 ## Phased Migration Approach
 
@@ -67,8 +68,8 @@ Determine how your Rust and C++ components will communicate:
    - Configure cargo workspace structure
    - Create initial crate(s) for the project
    - Implement build system integration (e.g., using Corrosion for CMake)
-2. **Create FFI Foundation**:
 
+2. **Create FFI Foundation**:
    - Implement basic FFI utilities
    - Create C-compatible header generation (using cbindgen)
    - Establish memory management patterns across the boundary
