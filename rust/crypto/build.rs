@@ -61,13 +61,60 @@ fn main() {
     // Create the output directory if it doesn't exist
     std::fs::create_dir_all(&out_dir).unwrap();
     
-    // Generate the bindings
-    cbindgen::Builder::new()
-        .with_crate(crate_dir)
-        .with_config(config)
-        .generate()
-        .expect("Unable to generate bindings")
-        .write_to_file(out_dir.join("crypto_interface.h"));
+    // Skip cbindgen for now due to parsing issues
+    println!("cargo:warning=Skipping header generation due to parser issues");
+    // TODO: Fix cbindgen issues and re-enable header generation
+    
+    // Instead of using cbindgen, we'll create a minimal header file with just the essential declarations
+    let minimal_header = r#"#pragma once
+
+#include <stdint.h>
+#include <stddef.h>
+
+namespace crusty {
+namespace crypto {
+
+enum class CryptoErrorCode {
+    Success = 0,
+    InvalidParams = -1,
+    AuthenticationFailed = -2,
+    EncryptionError = -3,
+    DecryptionError = -4,
+    KeyDerivationError = -5,
+    BufferTooSmall = -6,
+    InternalError = -7,
+    HardwareNotAvailable = -8
+};
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int32_t encrypt_data(
+    const uint8_t* data_ptr, size_t data_len,
+    const uint8_t* password_ptr, size_t password_len,
+    uint8_t* output_ptr, size_t output_max_len,
+    size_t* output_len
+);
+
+int32_t decrypt_data(
+    const uint8_t* data_ptr, size_t data_len,
+    const uint8_t* password_ptr, size_t password_len,
+    uint8_t* output_ptr, size_t output_max_len,
+    size_t* output_len
+);
+
+#ifdef __cplusplus
+}
+#endif
+
+} // namespace crypto
+} // namespace crusty
+    "#;
+    
+    // Write the minimal header to the output directory
+    std::fs::write(out_dir.join("crypto_interface.h"), minimal_header)
+        .expect("Unable to write minimal header file");
     
     // We don't need to link against ourselves
     // println!("cargo:rustc-link-lib=static=rust_crypto");

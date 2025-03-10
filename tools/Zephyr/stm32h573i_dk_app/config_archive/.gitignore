@@ -1,0 +1,6 @@
+# Ignore all files in this directory in git status by default
+# This prevents the archived scripts from cluttering git status
+# If you need to track changes to archived scripts, add them explicitly
+*
+!README.md
+!.gitignore

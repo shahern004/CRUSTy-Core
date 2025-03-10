@@ -14,7 +14,7 @@ std = [
     "argon2/std",
     "rand/std",
     "base64/std",
-    "thiserror/std",
+    "thiserror",
     "anyhow",
 ]
 embedded = [
@@ -28,7 +28,9 @@ embedded = [
 
 [dependencies]
 # Core dependencies with conditional std support
-aes-gcm = { version = "0.10.1", default-features = false }
+aes-gcm = { version = "0.10.1", default-features = false, features = ["aes", "alloc"] }
+aes = "0.8.4"
+generic-array = "0.14.7"
 argon2 = { version = "0.5.0", default-features = false, optional = true }
 rand = { version = "0.8.5", default-features = false, optional = true }
 rand_core = { version = "0.6.4", default-features = false, features = ["getrandom"], optional = true }

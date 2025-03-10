@@ -23,4 +23,4 @@ Implementation Guidelines
 Quality and Documentation
 Ask me before adding new documentation/readme files to the project
 
-    After each major feature, add a brief summary bullet of the change/action and test results of that addition in /Documentation/changelog.md.
+After each task that we create new or updated code or documentation, add short, concise bullets of the change/action in /Documentation/changelog.md. Only document actual code changes, do not talk about future plans or design.

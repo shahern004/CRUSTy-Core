@@ -1,6 +1,6 @@
 Planning and Progress
 
-    After each task is complete, update todo.md for progress made. Then, clear /Documentation/Coding Guidelines/context-summary.md contents. Update context-summary.md with prompts to help you start the next task. Write using concise prompt prose only using verbiage that helps you start work on a fresh task. context-summary.md is not meant for users or developers, its only to give the most concise information possible to help claude start his next task with no context.
+    After each task is complete, update the STM32H573I-DK_Migration_Roadmap.md document to reflect progress made by changing the status indicators (⬜ to ⏳ or ⏳ to ✅) as appropriate. The roadmap document serves as the central reference for tracking project progress and planning next steps. Before starting any new task, always check the roadmap document to understand the current state of the project and identify the next steps.
 
 Testing and Feedback
 

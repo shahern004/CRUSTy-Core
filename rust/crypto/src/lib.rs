@@ -1,11 +1,11 @@
-/// Cryptographic core for CRUSTy-Core
-/// 
-/// This module provides the core cryptographic functionality for CRUSTy-Core,
-/// including AES-256-GCM encryption/decryption and password-based key derivation.
-/// It exposes a C-compatible FFI interface for integration with C++ code.
-/// 
-/// The library supports both standard environments (PC) and embedded targets
-/// (STM32H573I-DK with ARM Cortex-M7).
+//! Cryptographic core for CRUSTy-Core
+//! 
+//! This module provides the core cryptographic functionality for CRUSTy-Core,
+//! including AES-256-GCM encryption/decryption and password-based key derivation.
+//! It exposes a C-compatible FFI interface for integration with C++ code.
+//! 
+//! The library supports both standard environments (PC) and embedded targets
+//! (STM32H573I-DK with ARM Cortex-M7).
 
 // Conditional compilation for std vs no_std
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -31,12 +31,22 @@ use stm32h5;
 // Common imports for both std and no_std
 use aes_gcm::{
     aead::{Aead, KeyInit},
-    Aes256Gcm, Key, Nonce
+    Key, Nonce
 };
+
+// AES implementation - requires 'aes' feature
+use aes_gcm::AesGcm;
+use aes::Aes256;
+
+// Use U12 for nonce size and define Aes256Gcm type
+use generic_array::typenum::{U12, U16};
+
+// Type alias for AES-256 in GCM mode with 12-byte nonce
+type Aes256Gcm = AesGcm<Aes256, U12, U16>;
 
 // Conditional imports based on features
 #[cfg(feature = "std")]
-use aes_gcm::aead::OsRng;
+use rand::rngs::OsRng;
 
 #[cfg(feature = "std")]
 use argon2::{

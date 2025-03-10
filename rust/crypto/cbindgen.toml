@@ -73,6 +73,4 @@ derive_partialeq = true
 derive_ord = false
 derive_eq = false
 
-# Explicitly export the CryptoErrorCode enum
-[export]
-include = ["CryptoErrorCode"]
+# Export will be handled automatically

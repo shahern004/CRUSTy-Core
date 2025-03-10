@@ -12,21 +12,7 @@
 
 namespace crusty {
 
-// Define Rust crypto error codes directly when Qt is not available
-#ifdef NO_QT_UI
-namespace crypto {
-    enum class CryptoErrorCode {
-        Success = 0,
-        InvalidParams = -1,
-        AuthenticationFailed = -2,
-        EncryptionError = -3,
-        DecryptionError = -4,
-        KeyDerivationError = -5,
-        BufferTooSmall = -6,
-        InternalError = -7
-    };
-}
-#endif
+// Use crypto error codes from crypto_interface.h
 
 namespace {
 
@@ -93,7 +79,7 @@ std::vector<uint8_t> Crypto::encrypt(
     std::vector<uint8_t> output(plaintext.size() + 32);
     size_t output_len = 0;
     
-    int32_t result = encrypt_data(
+    int32_t result = crusty::crypto::encrypt_data(
         plaintext.data(), plaintext.size(),
         reinterpret_cast<const uint8_t*>(securePassword.get().c_str()), 
         securePassword.get().size(),
@@ -129,7 +115,7 @@ std::vector<uint8_t> Crypto::decrypt(
     std::vector<uint8_t> output(ciphertext.size());
     size_t output_len = 0;
     
-    int32_t result = decrypt_data(
+    int32_t result = crusty::crypto::decrypt_data(
         ciphertext.data(), ciphertext.size(),
         reinterpret_cast<const uint8_t*>(securePassword.get().c_str()), 
         securePassword.get().size(),
@@ -162,7 +148,7 @@ std::string Crypto::hashPassword(const std::string& password) const {
     constexpr size_t HASH_BUFFER_SIZE = 256;
     std::vector<uint8_t> output(HASH_BUFFER_SIZE);
     
-    int32_t result = hash_password(
+    int32_t result = crusty::crypto::hash_password(
         reinterpret_cast<const uint8_t*>(securePassword.get().c_str()), 
         securePassword.get().size(),
         output.data(), 
