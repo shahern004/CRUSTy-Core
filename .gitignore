@@ -57,5 +57,14 @@ BSAFSS.md
 **/logs/
 tools/QEMU Reference/logs/
 
+# Zephyr build directories and modules
+tools/Zephyr/**/build*/
+tools/Zephyr/build_*/
+tools/Zephyr/zephyr/
+tools/Zephyr/modules/
+tools/Zephyr/bootloader/
+tools/Zephyr/HAL/
+tools/Zephyr/Modules/
+
 # Documentation
 Documentation/Coding Guidelines/
