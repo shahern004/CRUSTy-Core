@@ -2,11 +2,9 @@
 
 ## Introduction
 
-This guide provides a structured approach for developers seeking to integrate Rust into an existing C++ codebase. Rather than a complete rewrite, which often introduces significant risk and downtime, this guide focuses on incremental migration while maintaining system stability and performance.
+This guide provides a structured approach to integrate Rust into an existing C++ codebase within a single binary. Rather than a complete rewrite, this guide focuses on incremental migration while maintaining system stability and performance.
 
 ## Why Consider a Hybrid Architecture?
-
-A hybrid Rust-C++ architecture offers several benefits:
 
 - **Memory Safety**: Utilizing Rust's ownership model for memory-sensitive operations
 - **Performance**: Maintaining C++'s performance for computationally intensive tasks
@@ -31,7 +29,7 @@ Before starting the migration, thoroughly analyze your existing C++ system:
    - Isolation level (components with fewer dependencies are easier to migrate)
    - Business criticality (less critical components are safer for initial migration attempts)
 
-### 2. Establishing an FFI Strategy
+### 2. FFI Strategy
 
 Determine how your Rust and C++ components will communicate:
 
@@ -104,45 +102,33 @@ Determine how your Rust and C++ components will communicate:
 4. **Controlled Deployment**:
    - Implement feature toggles to control which implementation is used
    - Deploy with the ability to quickly rollback if issues arise
-   - Monitor closely for any unexpected behavior
 
 ### Phase 3: Expand Migration Scope
 
 1. **Incremental Component Migration**:
 
-   - Based on lessons from the pilot, select the next set of components
+   - Based on lessons learned, select the next set of components
    - Prioritize components that interact with already-migrated parts
-   - Create a "migration wave" plan that groups related components
 
 2. **Interface Refinement**:
 
-   - Refine FFI boundaries based on early experiences
+   - Refine FFI boundaries
    - Optimize data transfer between languages
-   - Consider redesigning interfaces for better language alignment
 
 3. **Progressive Testing Expansion**:
 
    - Expand test coverage across language boundaries
    - Implement performance benchmarking
-   - Create stress tests for the hybrid system
-
-4. **Documentation and Knowledge Sharing**:
-   - Document lessons learned and patterns discovered
-   - Create architectural documentation reflecting the hybrid nature
-   - Conduct knowledge sharing sessions for the team
 
 ### Phase 4: Critical System Migration
 
 1. **Risk Mitigation for Critical Components**:
 
-   - Implement comprehensive monitoring before migration
-   - Create detailed rollback plans
-   - Consider blue-green deployment strategies
-   - Schedule migrations during lower usage periods
+   - Comprehensive monitoring before migration
+   - Create rollback plans
 
 2. **Gradual Replacement Strategy**:
 
-   - Use the strangler pattern to gradually replace functionality
    - Maintain backward compatibility throughout the process
    - Implement thorough integration testing at each step
 
@@ -154,14 +140,11 @@ Determine how your Rust and C++ components will communicate:
 
 4. **User Impact Monitoring**:
    - Implement detailed telemetry for user-facing changes
-   - Create dashboards to monitor system behavior
    - Establish clear metrics for migration success
 
 ## Migration Patterns and Best Practices
 
 ### The Strangler Pattern
-
-The Strangler Pattern, named after strangler fig vines, involves gradually replacing functionality of an existing system by "strangling" it with new implementation:
 
 1. **Create Facade**:
 
@@ -202,7 +185,7 @@ For critical systems where direct replacement is too risky:
 3. **Gradual Cutover**:
 
    - Begin using Rust results for a small percentage of traffic
-   - Gradually increase the percentage as confidence grows
+   - Gradually increase the percentage
    - Maintain the ability to fall back to C++ instantly
 
 4. **Complete Migration**:
@@ -211,7 +194,7 @@ For critical systems where direct replacement is too risky:
 
 ### Feature Toggle Design
 
-Implement robust feature toggles to control the migration process:
+Implement feature toggles to control the migration process:
 
 1. **Toggle Granularity**:
 
@@ -281,14 +264,7 @@ Implement robust feature toggles to control the migration process:
 
 2. **Fuzzing**:
 
-   - Implement fuzz testing for FFI boundaries
-   - Focus on data validation and memory safety
-   - Test both expected and unexpected inputs
-
 3. **Static Analysis**:
-   - Apply static analysis tools to both C++ and Rust code
-   - Pay special attention to FFI boundaries
-   - Verify that unsafe Rust code follows best practices
 
 ## Common Challenges and Solutions
 
@@ -346,63 +322,3 @@ Implement robust feature toggles to control the migration process:
 - Create tools to trace execution across languages
 - Establish consistent error codes and messages
 - Use debug builds with additional validation
-
-## Case Study: Migrating a Network Protocol Stack
-
-Consider a network protocol stack originally written in C++:
-
-### Initial State
-
-- C++ implementation handles all network layers
-- Performance-critical packet processing
-- Complex state management
-- History of memory-related security issues
-
-### Migration Plan
-
-1. **Component Analysis**:
-
-   - Identify protocol layers and their dependencies
-   - Analyze memory safety risks in each component
-   - Establish performance requirements
-
-2. **Phased Migration**:
-
-   - Begin with application layer protocols (less performance-critical)
-   - Implement parser components in Rust (high security benefit)
-   - Maintain C++ for performance-critical packet processing initially
-   - Create clear FFI boundaries between protocol layers
-
-3. **Shadow Implementation**:
-
-   - Run Rust parsers alongside C++ implementations
-   - Compare parsing results for correctness
-   - Measure performance impact and optimize
-   - Gradually increase traffic through Rust components
-
-4. **Full Migration**:
-   - After sufficient confidence, move all parsing to Rust
-   - Optimize FFI boundaries for performance
-   - Progressively migrate lower protocol layers
-   - Maintain hybrid architecture where appropriate for performance
-
-### Results
-
-- Elimination of memory safety issues in parsing code
-- Improved security posture with minimal performance impact
-- Incremental approach allowed for continuous operation
-- Maintenance of performance-critical sections in C++ where necessary
-
-## Conclusion
-
-Migrating from a pure C++ codebase to a hybrid Rust architecture offers significant benefits in terms of memory safety, security, and developer productivity. By following a structured, incremental approach with proper risk mitigation strategies, organizations can achieve these benefits while minimizing disruption and downtime.
-
-The key principles to remember are:
-
-1. **Incremental Over Revolutionary**: Migrate component by component rather than attempting a complete rewrite
-2. **Test Continuously**: Implement robust testing at every stage, especially across language boundaries
-3. **Plan for Rollback**: Always maintain the ability to revert to previous implementations
-4. **Optimize Boundaries**: Design efficient FFI interfaces that minimize overhead
-5. **Educate Your Team**: Invest in building Rust expertise alongside C++ knowledge
-
-Following these principles will help ensure a successful migration while maintaining system stability and performance.
