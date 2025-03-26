@@ -1,0 +1,5 @@
+language = "C"
+include_guard = "MY_RUST_LIB_H"
+
+[export]
+prefix = "CRUSTy_"
